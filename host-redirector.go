@@ -32,7 +32,7 @@ func (hr *HostRedirector) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		url.Scheme = "http"
 	}
 
-	if _, port, err := net.SplitHostPort(r.Host); err == nil {
+	if port := portOnly(r.Host); port != "" {
 		url.Host = net.JoinHostPort(hr.Host, port)
 	} else {
 		url.Host = hr.Host
