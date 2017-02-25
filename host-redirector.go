@@ -26,12 +26,10 @@ type HostRedirector struct {
 func (hr *HostRedirector) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	url := *r.URL
 
-	if url.Scheme == "" {
-		if r.TLS != nil {
-			url.Scheme = "https"
-		} else {
-			url.Scheme = "http"
-		}
+	if r.TLS != nil {
+		url.Scheme = "https"
+	} else {
+		url.Scheme = "http"
 	}
 
 	if _, port, err := net.SplitHostPort(r.Host); err == nil {
