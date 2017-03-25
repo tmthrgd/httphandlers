@@ -27,7 +27,7 @@ type SNIHandler struct {
 // ServeHTTP implements http.Handler.
 func (h *SNIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
-	case r.TLS == nil || r.TLS.ServerName == "":
+	case r.TLS == nil || r.TLS.ServerName == "" || r.ProtoMajor == 2:
 		h.Handler.ServeHTTP(w, r)
 	case r.Host == "":
 		r.Host = r.TLS.ServerName
