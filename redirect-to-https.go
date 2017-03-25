@@ -27,7 +27,11 @@ type RedirectToHTTPS struct {
 func (h *RedirectToHTTPS) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	u := *r.URL
 	u.Scheme = "https"
-	u.Host = stripPort(r.Host)
+
+	if u.Host = stripPort(r.Host); u.Host == "" {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
 
 	switch h.Port {
 	case "", "443", "https":
