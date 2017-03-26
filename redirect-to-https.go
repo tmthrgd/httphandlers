@@ -13,6 +13,15 @@ import (
 // RedirectToHTTPS redirects clients to the
 // same URL but with the scheme set to https.
 type RedirectToHTTPS struct {
+	// Optionally specifies a host to
+	// redirect to for clients that do
+	// not set the HTTP Host header.
+	//
+	// If Host is an empty string, a 400
+	// Bad Request error will be returned
+	// instead.
+	Host string
+
 	// Optionally specifies a port to
 	// add to the URL.
 	Port string
@@ -29,8 +38,12 @@ func (h *RedirectToHTTPS) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	u.Scheme = "https"
 
 	if u.Host = stripPort(r.Host); u.Host == "" {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
+		if h.Host == "" {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		u.Host = h.Host
 	}
 
 	switch h.Port {
