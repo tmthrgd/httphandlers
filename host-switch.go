@@ -5,7 +5,10 @@
 
 package handlers
 
-import "net/http"
+import (
+	"net/http"
+	"net/url"
+)
 
 // HostSwitch is a http.Handler that routes
 // the request based on the Host header.
@@ -36,7 +39,7 @@ func (hs *HostSwitch) Add(host string, h http.Handler) {
 
 // ServeHTTP implements http.Handler.
 func (hs *HostSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	host := stripPort(r.Host)
+	host := (&url.URL{Host: r.Host}).Hostname()
 
 	if hs.m != nil {
 		if handler := hs.m[host]; handler != nil {

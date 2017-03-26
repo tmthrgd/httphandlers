@@ -8,6 +8,7 @@ package handlers
 import (
 	"net"
 	"net/http"
+	"net/url"
 )
 
 // RedirectToHTTPS redirects clients to the
@@ -37,7 +38,7 @@ func (h *RedirectToHTTPS) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	u := *r.URL
 	u.Scheme = "https"
 
-	if u.Host = stripPort(r.Host); u.Host == "" {
+	if u.Host = (&url.URL{Host: r.Host}).Hostname(); u.Host == "" {
 		if h.Host == "" {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return

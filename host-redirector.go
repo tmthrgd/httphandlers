@@ -8,6 +8,7 @@ package handlers
 import (
 	"net"
 	"net/http"
+	"net/url"
 )
 
 // HostRedirector redirects clients to the same
@@ -24,18 +25,18 @@ type HostRedirector struct {
 
 // ServeHTTP implements http.Handler.
 func (hr *HostRedirector) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	url := *r.URL
+	u := *r.URL
 
 	if r.TLS != nil {
-		url.Scheme = "https"
+		u.Scheme = "https"
 	} else {
-		url.Scheme = "http"
+		u.Scheme = "http"
 	}
 
-	if port := portOnly(r.Host); port != "" {
-		url.Host = net.JoinHostPort(hr.Host, port)
+	if port := (&url.URL{Host: r.Host}).Port(); port != "" {
+		u.Host = net.JoinHostPort(hr.Host, port)
 	} else {
-		url.Host = hr.Host
+		u.Host = hr.Host
 	}
 
 	code := http.StatusMovedPermanently
@@ -43,5 +44,5 @@ func (hr *HostRedirector) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		code = hr.Code
 	}
 
-	http.Redirect(w, r, url.String(), code)
+	http.Redirect(w, r, u.String(), code)
 }

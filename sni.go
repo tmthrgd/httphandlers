@@ -5,7 +5,10 @@
 
 package handlers
 
-import "net/http"
+import (
+	"net/http"
+	"net/url"
+)
 
 // SNIHandler verifies that the TLS SNI extension
 // matches the HTTP Host header. It also fills
@@ -32,7 +35,7 @@ func (h *SNIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case r.Host == "":
 		r.Host = r.TLS.ServerName
 		h.Handler.ServeHTTP(w, r)
-	case r.TLS.ServerName == stripPort(r.Host):
+	case r.TLS.ServerName == (&url.URL{Host: r.Host}).Hostname():
 		h.Handler.ServeHTTP(w, r)
 	case h.Mismatch != nil:
 		h.Mismatch.ServeHTTP(w, r)
