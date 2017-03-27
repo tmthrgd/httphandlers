@@ -9,12 +9,15 @@ import "net/http"
 
 // ErrorMessage calls http.Error with the given
 // HTTP status code and message.
-type ErrorMessage struct {
-	Code    int
-	Message string
+func ErrorMessage(msg string, code int) http.Handler {
+	return &errorHandler{msg, code}
 }
 
-// ServeHTTP implements http.Handler.
-func (msg *ErrorMessage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, msg.Message, msg.Code)
+type errorHandler struct {
+	msg  string
+	code int
+}
+
+func (h *errorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, h.msg, h.code)
 }
