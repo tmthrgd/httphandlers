@@ -12,6 +12,9 @@ import (
 
 // SNIMatch verifies that the TLS SNI extension
 // matches the HTTP Host header.
+//
+// It does nothing for HTTP/2.0 to allow
+// for connection coalescing.
 type SNIMatch struct {
 	http.Handler
 
