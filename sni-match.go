@@ -10,11 +10,9 @@ import (
 	"net/url"
 )
 
-// SNIHandler verifies that the TLS SNI extension
-// matches the HTTP Host header. It also fills
-// in (*http.Request).Host if it is blank and
-// the request is TLS.
-type SNIHandler struct {
+// SNIMatch verifies that the TLS SNI extension
+// matches the HTTP Host header.
+type SNIMatch struct {
 	http.Handler
 
 	// Mismatch is invoked on requests
@@ -28,14 +26,10 @@ type SNIHandler struct {
 }
 
 // ServeHTTP implements http.Handler.
-func (h *SNIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *SNIMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
-	case r.TLS == nil || r.TLS.ServerName == "" || r.ProtoMajor == 2:
-		h.Handler.ServeHTTP(w, r)
-	case r.Host == "":
-		r.Host = r.TLS.ServerName
-		h.Handler.ServeHTTP(w, r)
-	case r.TLS.ServerName == (&url.URL{Host: r.Host}).Hostname():
+	case r.TLS == nil || r.TLS.ServerName == "" || r.ProtoMajor == 2 ||
+		r.TLS.ServerName == (&url.URL{Host: r.Host}).Hostname():
 		h.Handler.ServeHTTP(w, r)
 	case h.Mismatch != nil:
 		h.Mismatch.ServeHTTP(w, r)
