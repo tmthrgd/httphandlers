@@ -22,7 +22,7 @@ type SNIHandler struct {
 	// TLS SNI extension and the HTTP Host
 	// header.
 	//
-	// If Mismatch is null, a 400 Bad
+	// If Mismatch is nil, a 400 Bad
 	// Request error will be returned instead.
 	Mismatch http.Handler
 }
