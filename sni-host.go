@@ -10,12 +10,15 @@ import "net/http"
 // SNIHost sets (*http.Request).Host to the TLS
 // SNI extension value if the request is TLS and
 // the HTTP Host header was absent.
-type SNIHost struct {
+func SNIHost(h http.Handler) http.Handler {
+	return &sniHost{h}
+}
+
+type sniHost struct {
 	http.Handler
 }
 
-// ServeHTTP implements http.Handler.
-func (h *SNIHost) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *sniHost) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Host == "" && r.TLS != nil {
 		r.Host = r.TLS.ServerName
 	}
