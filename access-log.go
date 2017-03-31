@@ -20,9 +20,8 @@ const sentinelH2Push = "X-H2-Push"
 
 var stdLogger = log.New(os.Stderr, "", 0)
 
-// AccessLogHandler logs HTTP requests to a
-// *log.Logger.
-type AccessLogHandler struct {
+// AccessLog logs HTTP requests to a *log.Logger.
+type AccessLog struct {
 	http.Handler
 
 	// The log to write log entries to.
@@ -36,7 +35,7 @@ type AccessLogHandler struct {
 }
 
 // ServeHTTP implements http.Handler.
-func (h *AccessLogHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (l *AccessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
 	u := *r.URL
@@ -53,7 +52,7 @@ func (h *AccessLogHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		code: http.StatusOK,
 	}
-	h.Handler.ServeHTTP(lw, r)
+	l.Handler.ServeHTTP(lw, r)
 
 	var tlsVers, resumed string
 	if r.TLS != nil {
@@ -72,13 +71,13 @@ func (h *AccessLogHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dateFormat := "2006/01/02 15:04:05"
-	if h.DateFormat != "" {
-		dateFormat = h.DateFormat
+	if l.DateFormat != "" {
+		dateFormat = l.DateFormat
 	}
 
 	logger := stdLogger
-	if h.AccessLog != nil {
-		logger = h.AccessLog
+	if l.AccessLog != nil {
+		logger = l.AccessLog
 	}
 
 	logger.Printf("%s %s%s %s %s %s %d %d %d%s%s\n",
