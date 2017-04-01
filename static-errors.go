@@ -34,16 +34,16 @@ func (w *errorResponseWriter) WriteHeader(code int) {
 
 	var padding string
 	if code >= http.StatusBadRequest && !w.disablePadding {
-		if ua := w.request.Header.Get("User-Agent"); ua != "" {
-			if msie := strings.Index(ua, "MSIE "); msie != -1 && msie+7 < len(ua) && !strings.Contains(ua, "Opera") {
-				padding = `
+		ua := w.request.Header.Get("User-Agent")
+		if msie := strings.Index(ua, "MSIE "); msie != -1 && msie+7 < len(ua) &&
+			!strings.Contains(ua, "Opera") {
+			padding = `
 <!-- a padding to disable MSIE and Chrome friendly error page -->
 <!-- a padding to disable MSIE and Chrome friendly error page -->
 <!-- a padding to disable MSIE and Chrome friendly error page -->
 <!-- a padding to disable MSIE and Chrome friendly error page -->
 <!-- a padding to disable MSIE and Chrome friendly error page -->
 <!-- a padding to disable MSIE and Chrome friendly error page -->`
-			}
 		}
 	}
 
