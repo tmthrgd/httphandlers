@@ -101,8 +101,9 @@ type StaticErrors struct {
 	// a statically rendered error page.
 	Errors map[int]*StaticError
 
-	// DisablePadding disables the MSIE/Chrome
-	// friendly error padding.
+	// When DisablePadding is true, the padding
+	// that disables MSIE/Chrome ’friendly’ error
+	// pages will not be added to responses.
 	DisablePadding bool
 }
 
