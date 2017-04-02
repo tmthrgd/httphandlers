@@ -6,18 +6,15 @@
 package handlers
 
 import (
-	"io"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 type errorResponseWriter struct {
 	http.ResponseWriter
 	request *http.Request
 
-	errors         map[int]*StaticError
-	disablePadding bool
+	errors map[int]*StaticError
 
 	didWrite  bool
 	skipWrite bool
@@ -32,21 +29,6 @@ func (w *errorResponseWriter) WriteHeader(code int) {
 
 	w.skipWrite = true
 
-	var padding string
-	if code >= http.StatusBadRequest && !w.disablePadding {
-		ua := w.request.Header.Get("User-Agent")
-		if msie := strings.Index(ua, "MSIE "); msie != -1 && msie+7 < len(ua) &&
-			!strings.Contains(ua, "Opera") {
-			padding = `
-<!-- a padding to disable MSIE and Chrome friendly error page -->
-<!-- a padding to disable MSIE and Chrome friendly error page -->
-<!-- a padding to disable MSIE and Chrome friendly error page -->
-<!-- a padding to disable MSIE and Chrome friendly error page -->
-<!-- a padding to disable MSIE and Chrome friendly error page -->
-<!-- a padding to disable MSIE and Chrome friendly error page -->`
-		}
-	}
-
 	h := w.Header()
 	delete(h, "Cache-Control")
 	delete(h, "Etag")
@@ -58,7 +40,7 @@ func (w *errorResponseWriter) WriteHeader(code int) {
 		h[k] = v
 	}
 
-	h["Content-Length"] = []string{strconv.FormatInt(int64(len(page.Body)+len(padding)), 10)}
+	h["Content-Length"] = []string{strconv.FormatInt(int64(len(page.Body)), 10)}
 
 	w.ResponseWriter.WriteHeader(code)
 
@@ -66,13 +48,7 @@ func (w *errorResponseWriter) WriteHeader(code int) {
 		return
 	}
 
-	_, err := w.ResponseWriter.Write(page.Body)
-
-	if err == nil && padding != "" {
-		_, err = io.WriteString(w.ResponseWriter, padding)
-	}
-
-	if err != nil {
+	if _, err := w.ResponseWriter.Write(page.Body); err != nil {
 		server := w.request.Context().Value(http.ServerContextKey).(*http.Server)
 		if server.ErrorLog != nil {
 			server.ErrorLog.Println(err)
@@ -100,11 +76,6 @@ type StaticErrors struct {
 	// (for example http.StatusNotFound) to
 	// a statically rendered error page.
 	Errors map[int]*StaticError
-
-	// When DisablePadding is true, the padding
-	// that disables MSIE/Chrome ’friendly’ error
-	// pages will not be added to responses.
-	DisablePadding bool
 }
 
 // ServeHTTP implements http.Handler.
@@ -113,8 +84,7 @@ func (e *StaticErrors) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ResponseWriter: w,
 		request:        r,
 
-		errors:         e.Errors,
-		disablePadding: e.DisablePadding,
+		errors: e.Errors,
 	}, r)
 }
 
