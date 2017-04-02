@@ -29,28 +29,43 @@ type SecurityHeaders struct {
 	//  default-src 'none'; sandbox
 	// and use less restrictive policies for each
 	// resource as needed.
+	//
+	// This header may require caution to use safely,
+	// but it is strongly recommend for all sites.
+	//
+	// See the article
+	//  'Content Security Policy - An Introduction'
+	//   https://scotthelme.co.uk/content-security-policy-an-introduction/
+	// for more information.
 	ContentSecurityPolicy string
 
 	// The value of the Strict-Transport-Security
 	// header to set.
 	//
-	// It takes a max-age parameter with time in
-	// seconds, which should be set to at least six
-	// months, like so:
+	// It takes a max-age directive, with time in
+	// seconds, which indicate how long browsers
+	// should cache the policy. It should be set to
+	// at least six months, like so:
 	//  max-age=15768000
 	//
-	// It also optionally takes two other flags:
-	//  - includeSubDomains which applies the policy
+	// It also optionally takes two other directives:
+	//  - includeSubDomains, which applies the policy
 	//    to all subdomains, and
-	//  - preload which signals to browser
+	//  - preload, which signals to browser
 	//    manufacturers that this policy may be
 	//    preloaded into the browser to prevent
 	//    them from ever connecting to the site
 	//    without TLS. Visit https://hstspreload.org/
 	//    to request preloading.
 	//
-	// This header should be used with caution, but
-	// it is strongly recommend for all HTTPS sides.
+	// This header may require caution to use safely,
+	// but it is strongly recommend for all HTTPS
+	// only sites.
+	//
+	// See the article
+	//  'HSTS - The missing link in Transport Layer Security'
+	//   https://scotthelme.co.uk/hsts-the-missing-link-in-tls/
+	// for more information.
 	StrictTransportSecurity string
 
 	// The value of the Expect-CT header to set.
