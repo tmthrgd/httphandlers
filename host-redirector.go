@@ -11,20 +11,23 @@ import (
 	"net/url"
 )
 
-// HostRedirector redirects clients to the same
-// request URL but with a different host.
-type HostRedirector struct {
-	// The host to redirect to.
-	Host string
-
-	// The HTTP status code to use when
-	// redirecting, defaults to 301 Moved
-	// Permanently.
-	Code int
+// HostRedirect returns a request handler that
+// redirects each request it receives to the
+// same url, but with a different host, using
+// the given status code.
+//
+// The provided code should be in the 3xx range
+// and is usually http.StatusMovedPermanently.
+func HostRedirect(host string, code int) http.Handler {
+	return &hostRedirector{host, code}
 }
 
-// ServeHTTP implements http.Handler.
-func (hr *HostRedirector) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type hostRedirector struct {
+	host string
+	code int
+}
+
+func (hr *hostRedirector) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	u := *r.URL
 
 	if r.TLS != nil {
@@ -34,15 +37,10 @@ func (hr *HostRedirector) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if port := (&url.URL{Host: r.Host}).Port(); port != "" {
-		u.Host = net.JoinHostPort(hr.Host, port)
+		u.Host = net.JoinHostPort(hr.host, port)
 	} else {
-		u.Host = hr.Host
+		u.Host = hr.host
 	}
 
-	code := http.StatusMovedPermanently
-	if hr.Code != 0 {
-		code = hr.Code
-	}
-
-	http.Redirect(w, r, u.String(), code)
+	http.Redirect(w, r, u.String(), hr.code)
 }
