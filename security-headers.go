@@ -16,8 +16,9 @@ import "net/http"
 //  - X-Content-Type-Options: nosniff, and
 //  - Referrer-Policy: strict-origin-when-cross-origin.
 //
-// It also optionally sets Content-Security-Policy and
-// Strict-Transport-Security to user specified values.
+// It also optionally sets the Content-Security-Policy,
+// Strict-Transport-Security and Expect-CT to user
+// specified values.
 type SecurityHeaders struct {
 	http.Handler
 
@@ -51,6 +52,26 @@ type SecurityHeaders struct {
 	// This header should be used with caution, but
 	// it is strongly recommend for all HTTPS sides.
 	StrictTransportSecurity string
+
+	// The value of the Expect-CT header to set.
+	//
+	// It takes a max-age directive, with time in
+	// seconds, which indicate how long browsers
+	// should cache the policy.
+	//
+	// It also optionally takes two other directives:
+	//  - enforce, which indicates that browsers
+	//    should enforce the policy or treat it as
+	//    a report-only policy, and
+	//  - report-uri, which specifies a URI that
+	//    a browser should send a report to, if it
+	//    doesn't receive valid CT information.
+	//
+	// See the article
+	//  'A new security header: Expect-CT'
+	//   https://scotthelme.co.uk/a-new-security-header-expect-ct/
+	// for more information.
+	ExpectCT string
 }
 
 // ServeHTTP implements http.Handler.
@@ -67,6 +88,10 @@ func (sh *SecurityHeaders) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if sh.StrictTransportSecurity != "" {
 		h["Strict-Transport-Security"] = []string{sh.StrictTransportSecurity}
+	}
+
+	if sh.ExpectCT != "" {
+		h["Expect-CT"] = []string{sh.ExpectCT}
 	}
 
 	sh.Handler.ServeHTTP(w, r)
