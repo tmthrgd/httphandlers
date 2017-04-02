@@ -13,7 +13,7 @@ import "net/http"
 // It sets:
 //  - X-Frame-Options: SAMEORIGIN,
 //  - X-XSS-Protection: 1; mode=block,
-//  - X-Content-Type-Options: nosniff,
+//  - X-Content-Type-Options: nosniff, and
 //  - Referrer-Policy: strict-origin-when-cross-origin.
 //
 // It also optionally sets Content-Security-Policy and
@@ -41,7 +41,12 @@ type SecurityHeaders struct {
 	// It also optionally takes two other flags:
 	//  - includeSubDomains which applies the policy
 	//    to all subdomains, and
-	//  - preload which .
+	//  - preload which signals to browser
+	//    manufacturers that this policy may be
+	//    preloaded into the browser to prevent
+	//    them from ever connecting to the site
+	//    without TLS. Visit https://hstspreload.org/
+	//    to request preloading.
 	//
 	// This header should be used with caution, but
 	// it is strongly recommend for all HTTPS sides.
