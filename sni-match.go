@@ -19,7 +19,7 @@ type SNIMatch struct {
 	http.Handler
 
 	// Mismatch is invoked on requests
-	// that contain a mismatch betwee the
+	// that contain a mismatch between the
 	// TLS SNI extension and the HTTP Host
 	// header.
 	//
