@@ -34,11 +34,6 @@ type AccessLog struct {
 	// An io.Writer to write log entries to,
 	// defaults to os.Stderr.
 	Out io.Writer
-
-	// The format string to use when logging
-	// request start times. Defaults to
-	// 2006/01/02 15:04:05.
-	DateFormat string
 }
 
 // ServeHTTP implements http.Handler.
@@ -50,13 +45,7 @@ func (l *AccessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	buf.Reset()
 
-	if l.DateFormat != "" {
-		buf.WriteString(start.Format(l.DateFormat))
-		buf.WriteByte(' ')
-	} else {
-		buf.WriteString(start.Format("2006/01/02 15:04:05 "))
-	}
-
+	buf.WriteString(start.Format("2006/01/02 15:04:05 "))
 	buf.WriteString((&url.URL{Host: r.RemoteAddr}).Hostname())
 
 	if r.TLS != nil {
