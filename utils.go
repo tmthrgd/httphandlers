@@ -12,7 +12,18 @@ type responseWriterFlusher interface {
 	http.Flusher
 }
 
+type closeNotifyResponseWriter struct {
+	responseWriterFlusher
+	http.CloseNotifier
+}
+
 type hijackResponseWriter struct {
 	responseWriterFlusher
+	http.Hijacker
+}
+
+type closeNotifyHijackResponseWriter struct {
+	responseWriterFlusher
+	http.CloseNotifier
 	http.Hijacker
 }
