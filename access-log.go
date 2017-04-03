@@ -83,7 +83,6 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	lw := &logResponseWriter{
 		ResponseWriter: w,
 	}
-	hj := hijackLogResponseWriter{lw}
 
 	var rw http.ResponseWriter = lw
 
@@ -93,13 +92,14 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch {
 	case cok && hok:
+		hj := hijackLogResponseWriter{lw}
 		rw = &closeNotifyHijackResponseWriter{hj, c, hj}
 	case cok && pok:
 		rw = &closeNotifyPusherResponseWriter{lw, c, p}
 	case cok:
 		rw = &closeNotifyResponseWriter{lw, c}
 	case hok:
-		rw = hj
+		rw = hijackLogResponseWriter{lw}
 	case pok:
 		rw = &pusherResponseWriter{lw, p}
 	}
