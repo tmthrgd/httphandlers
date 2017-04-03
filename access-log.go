@@ -83,10 +83,20 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	lw := &logResponseWriter{
 		ResponseWriter: w,
 	}
+	hj := hijackLogResponseWriter{lw}
 
 	var rw http.ResponseWriter = lw
-	if _, ok := w.(http.Hijacker); ok {
-		rw = hijackLogResponseWriter{lw}
+
+	c, cok := w.(http.CloseNotifier)
+	_, hok := w.(http.Hijacker)
+
+	switch {
+	case cok && hok:
+		rw = &closeNotifyHijackResponseWriter{hj, c, hj}
+	case cok:
+		rw = &closeNotifyResponseWriter{lw, c}
+	case hok:
+		rw = hj
 	}
 
 	l.Handler.ServeHTTP(rw, r)
