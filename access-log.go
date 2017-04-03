@@ -27,17 +27,27 @@ var logBufferPool = &sync.Pool{
 // github.com/tmthrgd/go-server-push.
 const sentinelH2Push = "X-H2-Push"
 
-// AccessLog logs HTTP requests to a *log.Logger.
-type AccessLog struct {
-	http.Handler
+// AccessLog wraps a http.Handler and logs
+// all HTTP requests to an io.Writer that
+// defaults to os.Stderr.
+//
+// The log format is intended for human
+// debugging and may not be stable.
+func AccessLog(h http.Handler, out io.Writer) http.Handler {
+	if out == nil {
+		out = os.Stderr
+	}
 
-	// An io.Writer to write log entries to,
-	// defaults to os.Stderr.
-	Out io.Writer
+	return &accessLog{h, out}
 }
 
-// ServeHTTP implements http.Handler.
-func (l *AccessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type accessLog struct {
+	http.Handler
+
+	out io.Writer
+}
+
+func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
 	buf := logBufferPool.Get().(*bytes.Buffer)
@@ -93,12 +103,7 @@ func (l *AccessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	buf.WriteByte('\n')
-
-	if l.Out != nil {
-		buf.WriteTo(l.Out)
-	} else {
-		buf.WriteTo(os.Stderr)
-	}
+	buf.WriteTo(l.out)
 }
 
 type logResponseWriter struct {
