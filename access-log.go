@@ -80,8 +80,6 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	lw := &logResponseWriter{
 		ResponseWriter: w,
-
-		code: http.StatusOK,
 	}
 	l.Handler.ServeHTTP(lw, r)
 
@@ -119,6 +117,10 @@ func (w *logResponseWriter) WriteHeader(code int) {
 }
 
 func (w *logResponseWriter) Write(p []byte) (n int, err error) {
+	if w.code == 0 {
+		w.code = http.StatusOK
+	}
+
 	n, err = w.ResponseWriter.Write(p)
 	w.size += int64(n)
 	return
