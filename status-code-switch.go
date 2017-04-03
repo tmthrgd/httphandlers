@@ -69,8 +69,12 @@ type statusCodeResponseWriter struct {
 }
 
 func (w *statusCodeResponseWriter) WriteHeader(code int) {
+	if w.skipWrite {
+		return
+	}
+
 	handler, ok := w.handlers[code]
-	if !ok || w.didWrite || w.skipWrite {
+	if !ok || w.didWrite {
 		w.ResponseWriter.WriteHeader(code)
 		return
 	}
