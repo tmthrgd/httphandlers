@@ -37,12 +37,14 @@ type serveError struct {
 
 func (s *serveError) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h := w.Header()
-	delete(h, "Cache-Control")
-	delete(h, "Etag")
-	delete(h, "Last-Modified")
-	delete(h, "Content-Encoding")
-	h["Content-Length"] = []string{s.size}
-	h["Content-Type"] = []string{s.mime}
+
+	if ce := h["Content-Encoding"]; len(ce) == 0 || ce[0] == "" {
+		h["Content-Length"] = []string{s.size}
+	}
+
+	if _, hasType := h["Content-Type"]; !hasType {
+		h["Content-Type"] = []string{s.mime}
+	}
 
 	w.WriteHeader(s.code)
 
