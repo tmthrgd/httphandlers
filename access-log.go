@@ -149,6 +149,16 @@ func (w *logResponseWriter) Write(p []byte) (n int, err error) {
 	return
 }
 
+func (w *logResponseWriter) WriteString(s string) (n int, err error) {
+	if w.code == 0 {
+		w.code = http.StatusOK
+	}
+
+	n, err = io.WriteString(w.ResponseWriter, s)
+	w.size += int64(n)
+	return
+}
+
 func (w *logResponseWriter) Flush() {
 	if f, ok := w.ResponseWriter.(http.Flusher); ok {
 		f.Flush()

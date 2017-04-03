@@ -7,34 +7,39 @@ package handlers
 
 import "net/http"
 
-type responseWriterFlusher interface {
+type stringWriter interface {
+	WriteString(s string) (n int, err error)
+}
+
+type responseWriterFlusherSW interface {
 	http.ResponseWriter
 	http.Flusher
+	stringWriter
 }
 
 type closeNotifyResponseWriter struct {
-	responseWriterFlusher
+	responseWriterFlusherSW
 	http.CloseNotifier
 }
 
 type hijackResponseWriter struct {
-	responseWriterFlusher
+	responseWriterFlusherSW
 	http.Hijacker
 }
 
 type pusherResponseWriter struct {
-	responseWriterFlusher
+	responseWriterFlusherSW
 	http.Pusher
 }
 
 type closeNotifyHijackResponseWriter struct {
-	responseWriterFlusher
+	responseWriterFlusherSW
 	http.CloseNotifier
 	http.Hijacker
 }
 
 type closeNotifyPusherResponseWriter struct {
-	responseWriterFlusher
+	responseWriterFlusherSW
 	http.CloseNotifier
 	http.Pusher
 }

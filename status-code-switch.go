@@ -5,7 +5,10 @@
 
 package handlers
 
-import "net/http"
+import (
+	"io"
+	"net/http"
+)
 
 // StatusCodeSwitch intercepts calls to
 // http.ResponseWriter.WriteHeader and redirects
@@ -99,6 +102,15 @@ func (w *statusCodeResponseWriter) Write(p []byte) (int, error) {
 
 	w.didWrite = true
 	return w.ResponseWriter.Write(p)
+}
+
+func (w *statusCodeResponseWriter) WriteString(s string) (int, error) {
+	if w.skipWrite {
+		return len(s), nil
+	}
+
+	w.didWrite = true
+	return io.WriteString(w.ResponseWriter, s)
 }
 
 func (w *statusCodeResponseWriter) Flush() {
