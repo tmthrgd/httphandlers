@@ -29,12 +29,19 @@ type statusCodeSwitch struct {
 }
 
 func (s *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.Handler.ServeHTTP(&statusCodeResponseWriter{
+	sc := &statusCodeResponseWriter{
 		ResponseWriter: w,
 		request:        r,
 
 		handlers: s.handlers,
-	}, r)
+	}
+
+	var rw http.ResponseWriter = sc
+	if h, ok := w.(http.Hijacker); ok {
+		rw = &hijackResponseWriter{sc, h}
+	}
+
+	s.Handler.ServeHTTP(rw, r)
 }
 
 type statusCodeResponseWriter struct {
