@@ -24,8 +24,8 @@ type serveBytes struct {
 	content []byte
 }
 
-func (sb *serveBytes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	http.ServeContent(w, r, sb.name, sb.modtime, bytes.NewReader(sb.content))
+func (s *serveBytes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	http.ServeContent(w, r, s.name, s.modtime, bytes.NewReader(s.content))
 }
 
 // ServeString returns a http.Handler that calls
@@ -40,6 +40,6 @@ type serveString struct {
 	content string
 }
 
-func (sb *serveString) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	http.ServeContent(w, r, sb.name, sb.modtime, strings.NewReader(sb.content))
+func (s *serveString) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	http.ServeContent(w, r, s.name, s.modtime, strings.NewReader(s.content))
 }
