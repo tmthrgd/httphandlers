@@ -75,3 +75,9 @@ func (w *statusCodeResponseWriter) Write(p []byte) (int, error) {
 	w.didWrite = true
 	return w.ResponseWriter.Write(p)
 }
+
+func (w *statusCodeResponseWriter) Flush() {
+	if f, ok := w.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
