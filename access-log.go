@@ -51,8 +51,6 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
 	buf := logBufferPool.Get().(*bytes.Buffer)
-	defer logBufferPool.Put(buf)
-
 	buf.Reset()
 
 	buf.WriteString(start.Format("2006/01/02 15:04:05 "))
@@ -104,6 +102,8 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	buf.WriteByte('\n')
 	buf.WriteTo(l.out)
+
+	logBufferPool.Put(buf)
 }
 
 type logResponseWriter struct {
