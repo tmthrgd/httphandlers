@@ -6,9 +6,11 @@
 package handlers
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/tls"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -81,7 +83,13 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	lw := &logResponseWriter{
 		ResponseWriter: w,
 	}
-	l.Handler.ServeHTTP(lw, r)
+
+	var rw http.ResponseWriter = lw
+	if _, ok := w.(http.Hijacker); ok {
+		rw = hijackLogResponseWriter{lw}
+	}
+
+	l.Handler.ServeHTTP(rw, r)
 
 	buf.WriteByte(' ')
 	buf.WriteString(strconv.FormatInt(int64(lw.code), 10))
@@ -130,6 +138,22 @@ func (w *logResponseWriter) Flush() {
 	if f, ok := w.ResponseWriter.(http.Flusher); ok {
 		f.Flush()
 	}
+}
+
+type hijackLogResponseWriter struct {
+	*logResponseWriter
+}
+
+func (w hijackLogResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	conn, rw, err := w.ResponseWriter.(http.Hijacker).Hijack()
+
+	if err == nil && w.code == 0 {
+		// The status will be StatusSwitchingProtocols if there was no
+		// error and WriteHeader has not been called yet.
+		w.code = http.StatusSwitchingProtocols
+	}
+
+	return conn, rw, err
 }
 
 var tlsVersionToLogName = map[uint16]string{
