@@ -40,14 +40,19 @@ func (s *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	c, cok := w.(http.CloseNotifier)
 	h, hok := w.(http.Hijacker)
+	p, pok := w.(http.Pusher)
 
 	switch {
 	case cok && hok:
 		rw = &closeNotifyHijackResponseWriter{sc, c, h}
+	case cok && pok:
+		rw = &closeNotifyPusherResponseWriter{sc, c, p}
 	case cok:
 		rw = &closeNotifyResponseWriter{sc, c}
 	case hok:
 		rw = &hijackResponseWriter{sc, h}
+	case pok:
+		rw = &pusherResponseWriter{sc, p}
 	}
 
 	s.Handler.ServeHTTP(rw, r)

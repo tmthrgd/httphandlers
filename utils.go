@@ -22,8 +22,19 @@ type hijackResponseWriter struct {
 	http.Hijacker
 }
 
+type pusherResponseWriter struct {
+	responseWriterFlusher
+	http.Pusher
+}
+
 type closeNotifyHijackResponseWriter struct {
 	responseWriterFlusher
 	http.CloseNotifier
 	http.Hijacker
+}
+
+type closeNotifyPusherResponseWriter struct {
+	responseWriterFlusher
+	http.CloseNotifier
+	http.Pusher
 }
