@@ -6,27 +6,34 @@
 package handlers
 
 import (
+	"bytes"
 	"crypto/tls"
-	"log"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
+	"sync"
 	"time"
 )
+
+var logBufferPool = &sync.Pool{
+	New: func() interface{} {
+		return new(bytes.Buffer)
+	},
+}
 
 // Redeclared to avoid importing
 // github.com/tmthrgd/go-server-push.
 const sentinelH2Push = "X-H2-Push"
 
-var stdLogger = log.New(os.Stderr, "", 0)
-
 // AccessLog logs HTTP requests to a *log.Logger.
 type AccessLog struct {
 	http.Handler
 
-	// The log to write log entries to.
-	// Defaults to os.Stderr with no flags.
-	AccessLog *log.Logger
+	// An io.Writer to write log entries to,
+	// defaults to os.Stderr.
+	Out io.Writer
 
 	// The format string to use when logging
 	// request start times. Defaults to
@@ -38,14 +45,41 @@ type AccessLog struct {
 func (l *AccessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
-	u := *r.URL
-	u.Host = r.Host
+	buf := logBufferPool.Get().(*bytes.Buffer)
+	defer logBufferPool.Put(buf)
+
+	buf.Reset()
+
+	if l.DateFormat != "" {
+		buf.WriteString(start.Format(l.DateFormat))
+		buf.WriteByte(' ')
+	} else {
+		buf.WriteString(start.Format("2006/01/02 15:04:05 "))
+	}
+
+	buf.WriteString((&url.URL{Host: r.RemoteAddr}).Hostname())
 
 	if r.TLS != nil {
-		u.Scheme = "https"
-	} else {
-		u.Scheme = "http"
+		if vers := tlsVersionToLogName[r.TLS.Version]; vers != "" {
+			buf.WriteString(vers)
+		} else {
+			buf.WriteString(" TLS:?")
+		}
 	}
+
+	buf.WriteByte(' ')
+	buf.WriteString(r.Proto)
+	buf.WriteByte(' ')
+	buf.WriteString(r.Method)
+
+	if r.TLS != nil {
+		buf.WriteString(" https://")
+	} else {
+		buf.WriteString(" http://")
+	}
+
+	buf.WriteString(r.Host)
+	buf.WriteString(r.RequestURI)
 
 	lw := &logResponseWriter{
 		ResponseWriter: w,
@@ -54,44 +88,28 @@ func (l *AccessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	l.Handler.ServeHTTP(lw, r)
 
-	var tlsVers, resumed string
-	if r.TLS != nil {
-		if tlsVers = tlsVersionToLogName[r.TLS.Version]; tlsVers == "" {
-			tlsVers = " TLS:?"
-		}
+	buf.WriteByte(' ')
+	buf.WriteString(strconv.FormatInt(int64(lw.code), 10))
+	buf.WriteByte(' ')
+	buf.WriteString(strconv.FormatInt(int64(lw.size), 10))
+	buf.WriteByte(' ')
+	buf.WriteString(strconv.FormatInt(int64(time.Since(start)/time.Microsecond), 10))
 
-		if r.TLS.DidResume {
-			resumed = " resumed"
-		}
+	if r.TLS != nil && r.TLS.DidResume {
+		buf.WriteString(" resumed")
 	}
 
-	var pushed string
 	if _, isPush := r.Header[sentinelH2Push]; isPush {
-		pushed = " h2-pushed"
+		buf.WriteString(" h2-pushed")
 	}
 
-	dateFormat := "2006/01/02 15:04:05"
-	if l.DateFormat != "" {
-		dateFormat = l.DateFormat
-	}
+	buf.WriteByte('\n')
 
-	logger := stdLogger
-	if l.AccessLog != nil {
-		logger = l.AccessLog
+	if l.Out != nil {
+		buf.WriteTo(l.Out)
+	} else {
+		buf.WriteTo(os.Stderr)
 	}
-
-	logger.Printf("%s %s%s %s %s %s %d %d %d%s%s\n",
-		start.Format(dateFormat),
-		(&url.URL{Host: r.RemoteAddr}).Hostname(),
-		tlsVers,
-		r.Proto,
-		r.Method,
-		u.String(),
-		lw.code,
-		lw.size,
-		time.Since(start)/time.Microsecond,
-		resumed,
-		pushed)
 }
 
 type logResponseWriter struct {
