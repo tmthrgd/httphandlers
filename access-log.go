@@ -126,6 +126,12 @@ func (w *logResponseWriter) Write(p []byte) (n int, err error) {
 	return
 }
 
+func (w *logResponseWriter) Flush() {
+	if f, ok := w.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
 var tlsVersionToLogName = map[uint16]string{
 	tls.VersionSSL30: " SSL3.0",
 	tls.VersionTLS10: " TLS1.0",
