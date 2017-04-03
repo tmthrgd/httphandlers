@@ -33,7 +33,7 @@ type neverModified struct {
 }
 
 func (nm *neverModified) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if checkIfModifiedSince(w, r, neverModifiedTime) == condFalse {
+	if checkIfModifiedSince(r, neverModifiedTime) == condFalse {
 		writeNotModified(w)
 		return
 	}

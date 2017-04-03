@@ -19,7 +19,7 @@ const (
 	condFalse
 )
 
-func checkIfModifiedSince(w http.ResponseWriter, r *http.Request, modtime time.Time) condResult {
+func checkIfModifiedSince(r *http.Request, modtime time.Time) condResult {
 	if r.Method != "GET" && r.Method != "HEAD" {
 		return condNone
 	}
