@@ -63,8 +63,6 @@ func (w *statusCodeResponseWriter) WriteHeader(code int) {
 	delete(h, "Content-Encoding")
 	delete(h, "Content-Length")
 	delete(h, "Content-Type")
-	delete(h, "Accept-Ranges")
-	delete(h, "Content-Range")
 
 	handler.ServeHTTP(w.ResponseWriter, w.request)
 }
