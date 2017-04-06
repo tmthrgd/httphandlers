@@ -58,15 +58,14 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	buf.WriteString(start.Format("2006/01/02 15:04:05 "))
 	buf.WriteString((&url.URL{Host: r.RemoteAddr}).Hostname())
 
-	if r.TLS != nil {
-		if vers := tlsVersionToLogName[r.TLS.Version]; vers != "" {
-			buf.WriteString(vers)
-		} else {
-			buf.WriteString(" TLS:?")
-		}
+	if r.TLS == nil {
+		buf.WriteByte(' ')
+	} else if vers := tlsVersionToLogName[r.TLS.Version]; vers != "" {
+		buf.WriteString(vers)
+	} else {
+		buf.WriteString(" TLS:? ")
 	}
 
-	buf.WriteByte(' ')
 	buf.WriteString(r.Proto)
 	buf.WriteByte(' ')
 	buf.WriteString(r.Method)
@@ -182,10 +181,10 @@ func (w hijackLogResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 }
 
 var tlsVersionToLogName = map[uint16]string{
-	tls.VersionSSL30: " SSL3.0",
-	tls.VersionTLS10: " TLS1.0",
-	tls.VersionTLS11: " TLS1.1",
-	tls.VersionTLS12: " TLS1.2",
-	0x0304:           " TLS1.3",
-	0x7f00 | 18:      " TLS1.3-d18",
+	tls.VersionSSL30: " SSL3.0 ",
+	tls.VersionTLS10: " TLS1.0 ",
+	tls.VersionTLS11: " TLS1.1 ",
+	tls.VersionTLS12: " TLS1.2 ",
+	0x0304:           " TLS1.3 ",
+	0x7f00 | 18:      " TLS1.3-d18 ",
 }
