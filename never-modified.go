@@ -5,12 +5,7 @@
 
 package handlers
 
-import (
-	"net/http"
-	"time"
-)
-
-var neverModifiedTime = time.Unix(978310800, 0) // "Mon, 01 Jan 2001 01:00:00 GMT"
+import "net/http"
 
 // NeverModified wraps a http.Handler and returns a
 // 304 Not Modified HTTP status code to the browser
@@ -33,9 +28,12 @@ type neverModified struct {
 }
 
 func (nm *neverModified) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if checkIfModifiedSince(r, neverModifiedTime) == condFalse {
-		writeNotModified(w)
-		return
+	if ims := r.Header["If-Modified-Since"]; len(ims) != 0 && ims[0] != "" &&
+		(r.Method == http.MethodGet || r.Method == http.MethodHead) {
+		if _, err := http.ParseTime(ims[0]); err == nil {
+			writeNotModified(w)
+			return
+		}
 	}
 
 	nm.Handler.ServeHTTP(w, r)
