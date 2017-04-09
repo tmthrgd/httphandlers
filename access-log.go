@@ -70,14 +70,17 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	buf.WriteByte(' ')
 	buf.WriteString(r.Method)
 
+	uri := *r.URL
+	uri.Host = r.Host
+
 	if r.TLS != nil {
-		buf.WriteString(" https://")
+		uri.Scheme = "https"
 	} else {
-		buf.WriteString(" http://")
+		uri.Scheme = "http"
 	}
 
-	buf.WriteString(r.Host)
-	buf.WriteString(r.RequestURI)
+	buf.WriteByte(' ')
+	buf.WriteString(uri.String())
 
 	lw := &logResponseWriter{
 		ResponseWriter: w,
