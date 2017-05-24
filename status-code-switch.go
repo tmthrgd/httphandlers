@@ -34,7 +34,7 @@ type statusCodeSwitch struct {
 func (s *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	sc := &statusCodeResponseWriter{
 		ResponseWriter: w,
-		request:        r,
+		req:            r,
 
 		handlers: s.handlers,
 	}
@@ -63,7 +63,7 @@ func (s *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 type statusCodeResponseWriter struct {
 	http.ResponseWriter
-	request *http.Request
+	req *http.Request
 
 	handlers map[int]http.Handler
 
@@ -92,7 +92,7 @@ func (w *statusCodeResponseWriter) WriteHeader(code int) {
 	delete(h, "Content-Length")
 	delete(h, "Content-Type")
 
-	handler.ServeHTTP(w.ResponseWriter, w.request)
+	handler.ServeHTTP(w.ResponseWriter, w.req)
 }
 
 func (w *statusCodeResponseWriter) Write(p []byte) (int, error) {
