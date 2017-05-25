@@ -88,22 +88,22 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var rw http.ResponseWriter = lw
 
-	c, cok := w.(http.CloseNotifier)
+	_, cok := w.(http.CloseNotifier)
 	_, hok := w.(http.Hijacker)
-	p, pok := w.(http.Pusher)
+	_, pok := w.(http.Pusher)
 
 	switch {
 	case cok && hok:
 		hj := hijackLogResponseWriter{lw}
-		rw = &closeNotifyHijackResponseWriter{hj, c, hj}
+		rw = closeNotifyHijackLogResponseWriter{hj}
 	case cok && pok:
-		rw = &closeNotifyPusherResponseWriter{lw, c, p}
+		rw = closeNotifyPusherLogResponseWriter{lw}
 	case cok:
-		rw = &closeNotifyResponseWriter{lw, c}
+		rw = closeNotifyLogResponseWriter{lw}
 	case hok:
 		rw = hijackLogResponseWriter{lw}
 	case pok:
-		rw = &pusherResponseWriter{lw, p}
+		rw = pusherLogResponseWriter{lw}
 	}
 
 	l.Handler.ServeHTTP(rw, r)
@@ -167,6 +167,8 @@ func (w *logResponseWriter) Flush() {
 	}
 }
 
+// This struct is intentionally small (1 pointer wide) so as to
+// fit inside an interface{} without causing an allocaction.
 type hijackLogResponseWriter struct {
 	*logResponseWriter
 }
@@ -183,6 +185,8 @@ func (w hijackLogResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	return conn, rw, err
 }
 
+var _ http.Hijacker = hijackLogResponseWriter{}
+
 var tlsVersionToLogName = map[uint16]string{
 	tls.VersionSSL30: " SSL3.0 ",
 	tls.VersionTLS10: " TLS1.0 ",
@@ -190,4 +194,42 @@ var tlsVersionToLogName = map[uint16]string{
 	tls.VersionTLS12: " TLS1.2 ",
 	0x0304:           " TLS1.3 ",
 	0x7f00 | 18:      " TLS1.3-d18 ",
+}
+
+type (
+	// Each of these structs is intentionally small (1 pointer wide) so
+	// as to fit inside an interface{} without causing an allocaction.
+	closeNotifyLogResponseWriter       struct{ *logResponseWriter }
+	pusherLogResponseWriter            struct{ *logResponseWriter }
+	closeNotifyHijackLogResponseWriter struct{ hijackLogResponseWriter }
+	closeNotifyPusherLogResponseWriter struct{ *logResponseWriter }
+)
+
+var (
+	_ http.CloseNotifier = closeNotifyLogResponseWriter{}
+	_ http.CloseNotifier = closeNotifyHijackLogResponseWriter{}
+	_ http.CloseNotifier = closeNotifyPusherLogResponseWriter{}
+	_ http.Hijacker      = closeNotifyHijackLogResponseWriter{}
+	_ http.Pusher        = pusherLogResponseWriter{}
+	_ http.Pusher        = closeNotifyPusherLogResponseWriter{}
+)
+
+func (w closeNotifyLogResponseWriter) CloseNotify() <-chan bool {
+	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
+}
+
+func (w closeNotifyHijackLogResponseWriter) CloseNotify() <-chan bool {
+	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
+}
+
+func (w closeNotifyPusherLogResponseWriter) CloseNotify() <-chan bool {
+	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
+}
+
+func (w pusherLogResponseWriter) Push(target string, opts *http.PushOptions) error {
+	return w.ResponseWriter.(http.Pusher).Push(target, opts)
+}
+
+func (w closeNotifyPusherLogResponseWriter) Push(target string, opts *http.PushOptions) error {
+	return w.ResponseWriter.(http.Pusher).Push(target, opts)
 }
