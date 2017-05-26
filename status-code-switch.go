@@ -116,6 +116,10 @@ func (w *statusCodeResponseWriter) WriteString(s string) (int, error) {
 }
 
 func (w *statusCodeResponseWriter) Flush() {
+	if w.skipWrite {
+		return
+	}
+
 	if f, ok := w.ResponseWriter.(http.Flusher); ok {
 		f.Flush()
 	}
@@ -154,17 +158,33 @@ func (w closeNotifyPusherStatusCodeResponseWriter) CloseNotify() <-chan bool {
 }
 
 func (w hijackStatusCodeResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	if w.skipWrite {
+		return nil, nil, http.ErrNotSupported
+	}
+
 	return w.ResponseWriter.(http.Hijacker).Hijack()
 }
 
 func (w closeNotifyHijackStatusCodeResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	if w.skipWrite {
+		return nil, nil, http.ErrNotSupported
+	}
+
 	return w.ResponseWriter.(http.Hijacker).Hijack()
 }
 
 func (w pusherStatusCodeResponseWriter) Push(target string, opts *http.PushOptions) error {
+	if w.skipWrite {
+		return http.ErrNotSupported
+	}
+
 	return w.ResponseWriter.(http.Pusher).Push(target, opts)
 }
 
 func (w closeNotifyPusherStatusCodeResponseWriter) Push(target string, opts *http.PushOptions) error {
+	if w.skipWrite {
+		return http.ErrNotSupported
+	}
+
 	return w.ResponseWriter.(http.Pusher).Push(target, opts)
 }
