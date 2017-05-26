@@ -13,6 +13,16 @@ func ErrorMessage(msg string, code int) http.Handler {
 	return &errorHandler{msg, code}
 }
 
+// ErrorCode calls http.Error with the given
+// HTTP status code. It uses http.StatusText
+// for the message.
+func ErrorCode(code int) http.Handler {
+	return &errorHandler{
+		http.StatusText(code),
+		code,
+	}
+}
+
 type errorHandler struct {
 	msg  string
 	code int
