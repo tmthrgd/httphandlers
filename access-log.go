@@ -108,12 +108,14 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	l.Handler.ServeHTTP(rw, r)
 
+	var intBuf [20]byte
+
 	buf.WriteByte(' ')
-	buf.WriteString(strconv.FormatInt(int64(lw.code), 10))
+	buf.Write(strconv.AppendInt(intBuf[:], int64(lw.code), 10))
 	buf.WriteByte(' ')
-	buf.WriteString(strconv.FormatInt(int64(lw.size), 10))
+	buf.Write(strconv.AppendInt(intBuf[:], int64(lw.size), 10))
 	buf.WriteByte(' ')
-	buf.WriteString(strconv.FormatInt(int64(time.Since(start)/time.Microsecond), 10))
+	buf.Write(strconv.AppendInt(intBuf[:], int64(time.Since(start)/time.Microsecond), 10))
 
 	if r.TLS != nil && r.TLS.DidResume {
 		buf.WriteString(" resumed")
