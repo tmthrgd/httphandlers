@@ -117,7 +117,7 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	buf.WriteByte(' ')
 	buf.Write(strconv.AppendInt(scratch[:0], int64(lw.code), 10))
 	buf.WriteByte(' ')
-	buf.Write(strconv.AppendInt(scratch[:0], int64(lw.size), 10))
+	buf.Write(strconv.AppendInt(scratch[:0], lw.size, 10))
 	buf.WriteByte(' ')
 	buf.Write(strconv.AppendInt(scratch[:0], int64(time.Since(start)/time.Microsecond), 10))
 
