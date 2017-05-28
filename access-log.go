@@ -55,7 +55,9 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	buf := logBufferPool.Get().(*bytes.Buffer)
 	buf.Reset()
 
-	buf.WriteString(start.Format("2006/01/02 15:04:05 "))
+	var scratch [20]byte
+
+	buf.Write(start.AppendFormat(scratch[:0], "2006/01/02 15:04:05 "))
 	buf.WriteString((&url.URL{Host: r.RemoteAddr}).Hostname())
 
 	if r.TLS == nil {
@@ -108,14 +110,12 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	l.Handler.ServeHTTP(rw, r)
 
-	var intBuf [20]byte
-
 	buf.WriteByte(' ')
-	buf.Write(strconv.AppendInt(intBuf[:0], int64(lw.code), 10))
+	buf.Write(strconv.AppendInt(scratch[:0], int64(lw.code), 10))
 	buf.WriteByte(' ')
-	buf.Write(strconv.AppendInt(intBuf[:0], int64(lw.size), 10))
+	buf.Write(strconv.AppendInt(scratch[:0], int64(lw.size), 10))
 	buf.WriteByte(' ')
-	buf.Write(strconv.AppendInt(intBuf[:0], int64(time.Since(start)/time.Microsecond), 10))
+	buf.Write(strconv.AppendInt(scratch[:0], int64(time.Since(start)/time.Microsecond), 10))
 
 	if r.TLS != nil && r.TLS.DidResume {
 		buf.WriteString(" resumed")
