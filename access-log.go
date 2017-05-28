@@ -110,6 +110,10 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	l.Handler.ServeHTTP(rw, r)
 
+	if lw.code == 0 {
+		lw.code = http.StatusOK
+	}
+
 	buf.WriteByte(' ')
 	buf.Write(strconv.AppendInt(scratch[:0], int64(lw.code), 10))
 	buf.WriteByte(' ')
