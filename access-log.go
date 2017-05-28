@@ -144,7 +144,10 @@ type logResponseWriter struct {
 
 func (w *logResponseWriter) WriteHeader(code int) {
 	w.ResponseWriter.WriteHeader(code)
-	w.code = code
+
+	if w.code == 0 {
+		w.code = code
+	}
 }
 
 func (w *logResponseWriter) Write(p []byte) (n int, err error) {
