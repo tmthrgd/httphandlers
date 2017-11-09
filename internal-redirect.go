@@ -7,7 +7,7 @@ package handlers
 
 import (
 	"net/http"
-	url "net/url"
+	"net/url"
 )
 
 // parseURL is just url.Parse. It exists only so that
