@@ -34,7 +34,7 @@ func TestHostSwitchAdd(t *testing.T) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			if err != `a handle is already registered for host 'example.com'` {
+			if err != `handlers: a handle is already registered for host 'example.com'` {
 				panic(err)
 			}
 		} else {

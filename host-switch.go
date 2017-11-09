@@ -30,7 +30,7 @@ func (hs *HostSwitch) Add(host string, h http.Handler) {
 	}
 
 	if _, dup := hs.m[host]; dup {
-		panic("a handle is already registered for host '" + host + "'")
+		panic("handlers: a handle is already registered for host '" + host + "'")
 	}
 
 	hs.m[host] = h
