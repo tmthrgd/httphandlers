@@ -23,8 +23,7 @@ type HostSwitch struct {
 
 // Add adds a http.Handler to the host switch.
 //
-// It panics the host has already been added
-// to the HostSwitch.
+// It panics if the host has already been added.
 func (hs *HostSwitch) Add(host string, h http.Handler) {
 	if hs.m == nil {
 		hs.m = make(map[string]http.Handler)
