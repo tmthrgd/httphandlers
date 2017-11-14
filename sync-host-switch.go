@@ -20,7 +20,7 @@ type SafeHostSwitch struct {
 
 	// NotFound is invoked for hosts
 	// that have not been added to the
-	// HostSwitch.
+	// host switch.
 	NotFound http.Handler
 }
 
