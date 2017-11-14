@@ -48,6 +48,8 @@ func (hs *HostSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if hs.NotFound != nil {
 		hs.NotFound.ServeHTTP(w, r)
 	} else {
-		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		http.Error(w, forbiddenText, http.StatusForbidden)
 	}
 }
+
+var forbiddenText = http.StatusText(http.StatusForbidden)

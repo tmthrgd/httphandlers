@@ -41,7 +41,7 @@ func (h *RedirectToHTTPS) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if u.Host == "" {
 		if h.Host == "" {
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			http.Error(w, badRequestText, http.StatusBadRequest)
 			return
 		}
 
@@ -61,3 +61,5 @@ func (h *RedirectToHTTPS) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, u.String(), code)
 }
+
+var badRequestText = http.StatusText(http.StatusBadRequest)
