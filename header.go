@@ -5,17 +5,14 @@
 
 package handlers
 
-import (
-	"net/http"
-	"net/textproto"
-)
+import "net/http"
 
 // SetHeader sets a header to a given value in the
 // response.
 func SetHeader(h http.Handler, name, value string) http.Handler {
 	return &setHeader{
 		Handler: h,
-		name:    textproto.CanonicalMIMEHeaderKey(name),
+		name:    http.CanonicalHeaderKey(name),
 		value:   value,
 	}
 }
@@ -37,7 +34,7 @@ func (sh *setHeader) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func AddHeader(h http.Handler, name, value string) http.Handler {
 	return &addHeader{
 		Handler: h,
-		name:    textproto.CanonicalMIMEHeaderKey(name),
+		name:    http.CanonicalHeaderKey(name),
 		value:   value,
 	}
 }
@@ -59,7 +56,7 @@ func (ah *addHeader) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func DeleteHeader(h http.Handler, name string) http.Handler {
 	return &deleteHeader{
 		Handler: h,
-		name:    textproto.CanonicalMIMEHeaderKey(name),
+		name:    http.CanonicalHeaderKey(name),
 	}
 }
 

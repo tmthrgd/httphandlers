@@ -5,17 +5,14 @@
 
 package handlers
 
-import (
-	"net/http"
-	"net/textproto"
-)
+import "net/http"
 
 // SetHeaders sets multiple response headers.
 func SetHeaders(h http.Handler, headers map[string]string) http.Handler {
 	canonical := make(map[string]string, len(headers))
 
 	for k, v := range headers {
-		canonical[textproto.CanonicalMIMEHeaderKey(k)] = v
+		canonical[http.CanonicalHeaderKey(k)] = v
 	}
 
 	return &setHeaders{
