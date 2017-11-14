@@ -7,41 +7,23 @@ package handlers
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
-
-type fakeResponseWriter struct {
-	Headers http.Header
-	Code    int
-}
-
-func (rw *fakeResponseWriter) Header() http.Header {
-	return rw.Headers
-}
-
-func (*fakeResponseWriter) Write(b []byte) (int, error) {
-	return len(b), nil
-}
-
-func (rw *fakeResponseWriter) WriteHeader(code int) {
-	rw.Code = code
-}
 
 func TestHostSwitchAdd(t *testing.T) {
 	var hs HostSwitch
-	hs.Add("example.com", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
-	hs.Add("example.org", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
 
-	defer func() {
-		if err := recover(); err != nil {
-			if err != `handlers: a handle is already registered for host 'example.com'` {
-				panic(err)
-			}
-		} else {
-			t.Error("(*HostSwitch).Add did not panic on duplicate")
-		}
-	}()
-	hs.Add("example.com", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	assert.NotPanics(t, func() {
+		hs.Add("example.com", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+		hs.Add("example.org", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	})
+
+	assert.PanicsWithValue(t, `handlers: a handle is already registered for host 'example.com'`, func() {
+		hs.Add("example.com", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	})
 }
 
 func TestHostSwitchNotFound(t *testing.T) {
@@ -52,11 +34,9 @@ func TestHostSwitchNotFound(t *testing.T) {
 		}),
 	}
 
-	hs.ServeHTTP(new(fakeResponseWriter), &http.Request{Host: "example.com"})
+	hs.ServeHTTP(httptest.NewRecorder(), &http.Request{Host: "example.com"})
 
-	if !calledNotFound {
-		t.Error("HostSwitch did not call NotFound")
-	}
+	assert.True(t, calledNotFound, "HostSwitch did not call NotFound")
 }
 
 func TestHostSwitch(t *testing.T) {
@@ -77,9 +57,9 @@ func TestHostSwitch(t *testing.T) {
 		calledExampleOrg = true
 	}))
 
-	hs.ServeHTTP(new(fakeResponseWriter), &http.Request{Host: "example.com"})
+	hs.ServeHTTP(httptest.NewRecorder(), &http.Request{Host: "example.com"})
 
-	if calledNotFound || !calledExampleCom || calledExampleOrg {
-		t.Error("HostSwitch did not call correct handler")
-	}
+	assert.False(t, calledNotFound, "HostSwitch did not call correct handler: NotFound")
+	assert.True(t, calledExampleCom, "HostSwitch did not call correct handler: example.com")
+	assert.False(t, calledExampleOrg, "HostSwitch did not call correct handler: example.org")
 }
