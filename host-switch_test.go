@@ -27,18 +27,18 @@ func TestHostSwitchAdd(t *testing.T) {
 }
 
 func TestHostSwitchNotFound(t *testing.T) {
-	calledNotFound := false
 	hs := &HostSwitch{
-		NotFound: http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
-			calledNotFound = true
+		NotFound: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(999)
 		}),
 	}
 
 	r := httptest.NewRequest(http.MethodGet, "http://example.com", nil)
 
-	hs.ServeHTTP(httptest.NewRecorder(), r)
+	w := httptest.NewRecorder()
+	hs.ServeHTTP(w, r)
 
-	assert.True(t, calledNotFound, "HostSwitch did not call NotFound")
+	assert.Equal(t, w.Code, 999, "HostSwitch did not call NotFound")
 }
 
 func TestHostSwitchForbidden(t *testing.T) {
@@ -54,28 +54,23 @@ func TestHostSwitchForbidden(t *testing.T) {
 }
 
 func TestHostSwitch(t *testing.T) {
-	calledNotFound := false
 	hs := &HostSwitch{
-		NotFound: http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
-			calledNotFound = true
+		NotFound: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(999)
 		}),
 	}
 
-	calledExampleCom := false
-	hs.Add("example.com", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
-		calledExampleCom = true
+	hs.Add("example.com", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(997)
 	}))
-
-	calledExampleOrg := false
-	hs.Add("example.org", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
-		calledExampleOrg = true
+	hs.Add("example.org", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(998)
 	}))
 
 	r := httptest.NewRequest(http.MethodGet, "http://example.com", nil)
 
-	hs.ServeHTTP(httptest.NewRecorder(), r)
+	w := httptest.NewRecorder()
+	hs.ServeHTTP(w, r)
 
-	assert.False(t, calledNotFound, "HostSwitch did not call correct handler: NotFound")
-	assert.True(t, calledExampleCom, "HostSwitch did not call correct handler: example.com")
-	assert.False(t, calledExampleOrg, "HostSwitch did not call correct handler: example.org")
+	assert.Equal(t, w.Code, 997, "HostSwitch invoked incorrect http.Handler")
 }
