@@ -24,6 +24,10 @@ func InternalRedirect(h http.Handler, url string) http.Handler {
 		panic(err)
 	}
 
+	if u.Fragment != "" {
+		panic("handlers: fragment must be empty in InternalRedirect")
+	}
+
 	return &internalRedirect{
 		Handler: h,
 		url:     u,
