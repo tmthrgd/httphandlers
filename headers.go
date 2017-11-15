@@ -15,6 +15,16 @@ func SetHeaders(h http.Handler, headers map[string]string) http.Handler {
 		canonical[http.CanonicalHeaderKey(k)] = v
 	}
 
+	// Always give preference to any header that appears
+	// in canonical form in the headers map. The selection
+	// between two separate headers, both of which are in
+	// non-canonical form, is undefined.
+	for k := range canonical {
+		if v, ok := headers[k]; ok {
+			canonical[k] = v
+		}
+	}
+
 	return &setHeaders{
 		Handler: h,
 
