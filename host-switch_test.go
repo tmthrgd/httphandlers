@@ -34,7 +34,9 @@ func TestHostSwitchNotFound(t *testing.T) {
 		}),
 	}
 
-	hs.ServeHTTP(httptest.NewRecorder(), &http.Request{Host: "example.com"})
+	r := httptest.NewRequest(http.MethodGet, "http://example.com", nil)
+
+	hs.ServeHTTP(httptest.NewRecorder(), r)
 
 	assert.True(t, calledNotFound, "HostSwitch did not call NotFound")
 }
@@ -57,7 +59,9 @@ func TestHostSwitch(t *testing.T) {
 		calledExampleOrg = true
 	}))
 
-	hs.ServeHTTP(httptest.NewRecorder(), &http.Request{Host: "example.com"})
+	r := httptest.NewRequest(http.MethodGet, "http://example.com", nil)
+
+	hs.ServeHTTP(httptest.NewRecorder(), r)
 
 	assert.False(t, calledNotFound, "HostSwitch did not call correct handler: NotFound")
 	assert.True(t, calledExampleCom, "HostSwitch did not call correct handler: example.com")
