@@ -41,6 +41,18 @@ func TestHostSwitchNotFound(t *testing.T) {
 	assert.True(t, calledNotFound, "HostSwitch did not call NotFound")
 }
 
+func TestHostSwitchForbidden(t *testing.T) {
+	var hs HostSwitch
+
+	r := httptest.NewRequest(http.MethodGet, "http://example.com", nil)
+
+	w := httptest.NewRecorder()
+	hs.ServeHTTP(w, r)
+
+	assert.Equal(t, w.Code, http.StatusForbidden)
+	assert.Contains(t, w.Body.String(), http.StatusText(http.StatusForbidden))
+}
+
 func TestHostSwitch(t *testing.T) {
 	calledNotFound := false
 	hs := &HostSwitch{
