@@ -28,6 +28,6 @@ type errorHandler struct {
 	code int
 }
 
-func (h *errorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, h.msg, h.code)
+func (eh *errorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, eh.msg, eh.code)
 }

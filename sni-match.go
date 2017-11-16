@@ -36,11 +36,11 @@ type sniMatch struct {
 	mismatch http.Handler
 }
 
-func (m *sniMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (sm *sniMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.TLS == nil || r.TLS.ServerName == "" || r.ProtoMajor == 2 ||
 		r.TLS.ServerName == (&url.URL{Host: r.Host}).Hostname() {
-		m.Handler.ServeHTTP(w, r)
+		sm.Handler.ServeHTTP(w, r)
 	} else {
-		m.mismatch.ServeHTTP(w, r)
+		sm.mismatch.ServeHTTP(w, r)
 	}
 }

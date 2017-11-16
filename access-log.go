@@ -49,7 +49,7 @@ type accessLog struct {
 	out io.Writer
 }
 
-func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (al *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
 	buf := logBufferPool.Get().(*bytes.Buffer)
@@ -108,7 +108,7 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		rw = pusherLogResponseWriter{lw}
 	}
 
-	l.Handler.ServeHTTP(rw, r)
+	al.Handler.ServeHTTP(rw, r)
 
 	if lw.code == 0 {
 		lw.code = http.StatusOK
@@ -130,7 +130,7 @@ func (l *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	buf.WriteByte('\n')
-	buf.WriteTo(l.out)
+	buf.WriteTo(al.out)
 
 	logBufferPool.Put(buf)
 }

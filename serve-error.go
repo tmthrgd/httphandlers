@@ -35,20 +35,20 @@ type serveError struct {
 	code    int
 }
 
-func (s *serveError) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (se *serveError) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h := w.Header()
 
 	if ce := h["Content-Encoding"]; len(ce) == 0 || ce[0] == "" {
-		h["Content-Length"] = []string{s.size}
+		h["Content-Length"] = []string{se.size}
 	}
 
 	if _, hasType := h["Content-Type"]; !hasType {
-		h["Content-Type"] = []string{s.mime}
+		h["Content-Type"] = []string{se.mime}
 	}
 
-	w.WriteHeader(s.code)
+	w.WriteHeader(se.code)
 
 	if r.Method != http.MethodHead {
-		w.Write(s.content)
+		w.Write(se.content)
 	}
 }

@@ -33,12 +33,12 @@ type statusCodeSwitch struct {
 	handlers map[int]http.Handler
 }
 
-func (s *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (sw *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	sc := &statusCodeResponseWriter{
 		ResponseWriter: w,
 		req:            r,
 
-		handlers: s.handlers,
+		handlers: sw.handlers,
 	}
 
 	var rw http.ResponseWriter = sc
@@ -60,7 +60,7 @@ func (s *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		rw = pusherStatusCodeResponseWriter{sc}
 	}
 
-	s.Handler.ServeHTTP(rw, r)
+	sw.Handler.ServeHTTP(rw, r)
 }
 
 type statusCodeResponseWriter struct {

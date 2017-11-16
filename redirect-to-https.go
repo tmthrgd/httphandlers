@@ -34,29 +34,29 @@ type RedirectToHTTPS struct {
 }
 
 // ServeHTTP implements http.Handler.
-func (h *RedirectToHTTPS) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (rt *RedirectToHTTPS) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	u := *r.URL
 	u.Scheme = "https"
 	u.Host = (&url.URL{Host: r.Host}).Hostname()
 
 	if u.Host == "" {
-		if h.Host == "" {
+		if rt.Host == "" {
 			http.Error(w, badRequestText, http.StatusBadRequest)
 			return
 		}
 
-		u.Host = h.Host
+		u.Host = rt.Host
 	}
 
-	switch h.Port {
+	switch rt.Port {
 	case "", "443", "https":
 	default:
-		u.Host = net.JoinHostPort(u.Host, h.Port)
+		u.Host = net.JoinHostPort(u.Host, rt.Port)
 	}
 
 	code := http.StatusMovedPermanently
-	if h.Code != 0 {
-		code = h.Code
+	if rt.Code != 0 {
+		code = rt.Code
 	}
 
 	http.Redirect(w, r, u.String(), code)

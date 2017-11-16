@@ -18,12 +18,12 @@ type sniHost struct {
 	http.Handler
 }
 
-func (h *sniHost) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (sh *sniHost) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Host == "" && r.TLS != nil && r.TLS.ServerName != "" {
 		rr := *r
 		rr.Host = r.TLS.ServerName
 		r = &rr
 	}
 
-	h.Handler.ServeHTTP(w, r)
+	sh.Handler.ServeHTTP(w, r)
 }
