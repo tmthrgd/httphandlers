@@ -19,13 +19,13 @@ func TestErrorCode(t *testing.T) {
 	w := httptest.NewRecorder()
 	ErrorCode(http.StatusNotFound).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusNotFound)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 	assert.Contains(t, w.Body.String(), http.StatusText(http.StatusNotFound))
 
 	w = httptest.NewRecorder()
 	ErrorCode(http.StatusBadGateway).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusBadGateway)
+	assert.Equal(t, http.StatusBadGateway, w.Code)
 	assert.Contains(t, w.Body.String(), http.StatusText(http.StatusBadGateway))
 }
 
@@ -38,7 +38,7 @@ func TestErrorCodeEqual(t *testing.T) {
 	ErrorCode(http.StatusNotFound).ServeHTTP(w1, r)
 	http.Error(w2, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 
-	assert.Equal(t, w1.Result(), w2.Result())
+	assert.Equal(t, w2.Result(), w1.Result())
 }
 
 func TestErrorMessage(t *testing.T) {
@@ -47,13 +47,13 @@ func TestErrorMessage(t *testing.T) {
 	w := httptest.NewRecorder()
 	ErrorMessage("test1", http.StatusNotFound).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusNotFound)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 	assert.Contains(t, w.Body.String(), "test1")
 
 	w = httptest.NewRecorder()
 	ErrorMessage("test2", http.StatusBadGateway).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusBadGateway)
+	assert.Equal(t, http.StatusBadGateway, w.Code)
 	assert.Contains(t, w.Body.String(), "test2")
 }
 
@@ -66,5 +66,5 @@ func TestErrorMessageEqual(t *testing.T) {
 	ErrorMessage("test", http.StatusNotFound).ServeHTTP(w1, r)
 	http.Error(w2, "test", http.StatusNotFound)
 
-	assert.Equal(t, w1.Result(), w2.Result())
+	assert.Equal(t, w2.Result(), w1.Result())
 }

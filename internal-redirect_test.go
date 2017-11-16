@@ -25,17 +25,17 @@ func TestInternalRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	InternalRedirect(h, "/new/path/to/other/file").ServeHTTP(w, r)
 
-	assert.Equal(t, url.String(), "/new/path/to/other/file")
+	assert.Equal(t, "/new/path/to/other/file", url.String())
 
 	w = httptest.NewRecorder()
 	InternalRedirect(h, "/").ServeHTTP(w, r)
 
-	assert.Equal(t, url.String(), "/")
+	assert.Equal(t, "/", url.String())
 
 	w = httptest.NewRecorder()
 	InternalRedirect(h, "/?abc").ServeHTTP(w, r)
 
-	assert.Equal(t, url.String(), "/?abc")
+	assert.Equal(t, "/?abc", url.String())
 }
 
 func TestInternalRedirectInvalidPanics(t *testing.T) {

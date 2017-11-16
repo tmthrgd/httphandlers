@@ -18,20 +18,20 @@ func TestHostRedirector(t *testing.T) {
 	w := httptest.NewRecorder()
 	HostRedirect("example.com", http.StatusSeeOther).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusSeeOther)
-	assert.Equal(t, w.HeaderMap.Get("Location"), "http://example.com/path/to/file")
+	assert.Equal(t, http.StatusSeeOther, w.Code)
+	assert.Equal(t, "http://example.com/path/to/file", w.HeaderMap.Get("Location"))
 
 	r = httptest.NewRequest(http.MethodGet, "https://example.org/path/to/file", nil)
 	w = httptest.NewRecorder()
 	HostRedirect("example.com", http.StatusSeeOther).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusSeeOther)
-	assert.Equal(t, w.HeaderMap.Get("Location"), "https://example.com/path/to/file")
+	assert.Equal(t, http.StatusSeeOther, w.Code)
+	assert.Equal(t, "https://example.com/path/to/file", w.HeaderMap.Get("Location"))
 
 	r = httptest.NewRequest(http.MethodGet, "https://example.org:1234/path/to/file", nil)
 	w = httptest.NewRecorder()
 	HostRedirect("example.com", http.StatusSeeOther).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusSeeOther)
-	assert.Equal(t, w.HeaderMap.Get("Location"), "https://example.com:1234/path/to/file")
+	assert.Equal(t, http.StatusSeeOther, w.Code)
+	assert.Equal(t, "https://example.com:1234/path/to/file", w.HeaderMap.Get("Location"))
 }

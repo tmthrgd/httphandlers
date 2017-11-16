@@ -19,14 +19,14 @@ func TestRedirectToHTTPS(t *testing.T) {
 	w := httptest.NewRecorder()
 	(&RedirectToHTTPS{}).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusMovedPermanently)
-	assert.Equal(t, w.HeaderMap.Get("Location"), "https://example.com/path/to/file")
+	assert.Equal(t, http.StatusMovedPermanently, w.Code)
+	assert.Equal(t, "https://example.com/path/to/file", w.HeaderMap.Get("Location"))
 
 	w = httptest.NewRecorder()
 	(&RedirectToHTTPS{Code: http.StatusSeeOther}).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusSeeOther)
-	assert.Equal(t, w.HeaderMap.Get("Location"), "https://example.com/path/to/file")
+	assert.Equal(t, http.StatusSeeOther, w.Code)
+	assert.Equal(t, "https://example.com/path/to/file", w.HeaderMap.Get("Location"))
 }
 
 func TestRedirectToHTTPSWithPort(t *testing.T) {
@@ -35,20 +35,20 @@ func TestRedirectToHTTPSWithPort(t *testing.T) {
 	w := httptest.NewRecorder()
 	(&RedirectToHTTPS{Port: "1234"}).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusMovedPermanently)
-	assert.Equal(t, w.HeaderMap.Get("Location"), "https://example.com:1234/path/to/file")
+	assert.Equal(t, http.StatusMovedPermanently, w.Code)
+	assert.Equal(t, "https://example.com:1234/path/to/file", w.HeaderMap.Get("Location"))
 
 	w = httptest.NewRecorder()
 	(&RedirectToHTTPS{Port: "443"}).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusMovedPermanently)
-	assert.Equal(t, w.HeaderMap.Get("Location"), "https://example.com/path/to/file")
+	assert.Equal(t, http.StatusMovedPermanently, w.Code)
+	assert.Equal(t, "https://example.com/path/to/file", w.HeaderMap.Get("Location"))
 
 	w = httptest.NewRecorder()
 	(&RedirectToHTTPS{Port: "https"}).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusMovedPermanently)
-	assert.Equal(t, w.HeaderMap.Get("Location"), "https://example.com/path/to/file")
+	assert.Equal(t, http.StatusMovedPermanently, w.Code)
+	assert.Equal(t, "https://example.com/path/to/file", w.HeaderMap.Get("Location"))
 }
 
 func TestRedirectToHTTPSNoHost(t *testing.T) {
@@ -58,12 +58,12 @@ func TestRedirectToHTTPSNoHost(t *testing.T) {
 	w := httptest.NewRecorder()
 	(&RedirectToHTTPS{}).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusBadRequest)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assert.Contains(t, w.Body.String(), http.StatusText(http.StatusBadRequest))
 
 	w = httptest.NewRecorder()
 	(&RedirectToHTTPS{Host: "example.org"}).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusMovedPermanently)
-	assert.Equal(t, w.HeaderMap.Get("Location"), "https://example.org/path/to/file")
+	assert.Equal(t, http.StatusMovedPermanently, w.Code)
+	assert.Equal(t, "https://example.org/path/to/file", w.HeaderMap.Get("Location"))
 }

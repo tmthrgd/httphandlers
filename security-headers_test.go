@@ -22,13 +22,13 @@ func TestSecurityHeaders(t *testing.T) {
 	w := httptest.NewRecorder()
 	(&SecurityHeaders{Handler: h}).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
 		"X-Frame-Options":        {"SAMEORIGIN"},
 		"X-XSS-Protection":       {"1; mode=block"},
 		"X-Content-Type-Options": {"nosniff"},
 		"Referrer-Policy":        {"strict-origin-when-cross-origin"},
-	})
+	}, w.HeaderMap)
 
 	w = httptest.NewRecorder()
 	(&SecurityHeaders{
@@ -39,8 +39,8 @@ func TestSecurityHeaders(t *testing.T) {
 		ExpectCT:                "test3",
 	}).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
 		"X-Frame-Options":           {"SAMEORIGIN"},
 		"X-XSS-Protection":          {"1; mode=block"},
 		"X-Content-Type-Options":    {"nosniff"},
@@ -48,7 +48,7 @@ func TestSecurityHeaders(t *testing.T) {
 		"Content-Security-Policy":   {"test1"},
 		"Strict-Transport-Security": {"test2"},
 		"Expect-CT":                 {"test3"},
-	})
+	}, w.HeaderMap)
 
 	w = httptest.NewRecorder()
 	w.HeaderMap = http.Header{
@@ -69,8 +69,8 @@ func TestSecurityHeaders(t *testing.T) {
 		ExpectCT:                "test3",
 	}).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
 		"X-Frame-Options":           {"SAMEORIGIN"},
 		"X-XSS-Protection":          {"1; mode=block"},
 		"X-Content-Type-Options":    {"nosniff"},
@@ -78,7 +78,7 @@ func TestSecurityHeaders(t *testing.T) {
 		"Content-Security-Policy":   {"test1"},
 		"Strict-Transport-Security": {"test2"},
 		"Expect-CT":                 {"test3"},
-	})
+	}, w.HeaderMap)
 
 	w = httptest.NewRecorder()
 	w.HeaderMap = http.Header{
@@ -93,8 +93,8 @@ func TestSecurityHeaders(t *testing.T) {
 
 	(&SecurityHeaders{Handler: h}).ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
 		"X-Frame-Options":           {"SAMEORIGIN"},
 		"X-XSS-Protection":          {"1; mode=block"},
 		"X-Content-Type-Options":    {"nosniff"},
@@ -102,5 +102,5 @@ func TestSecurityHeaders(t *testing.T) {
 		"Content-Security-Policy":   {"leave"},
 		"Strict-Transport-Security": {"leave"},
 		"Expect-CT":                 {"leave"},
-	})
+	}, w.HeaderMap)
 }

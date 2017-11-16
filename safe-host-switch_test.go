@@ -46,7 +46,7 @@ func TestSafeHostSwitchNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	hs.ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "SafeHostSwitch did not call NotFound")
+	assert.Equal(t, 999, w.Code, "SafeHostSwitch did not call NotFound")
 }
 
 func TestSafeHostSwitchForbidden(t *testing.T) {
@@ -57,7 +57,7 @@ func TestSafeHostSwitchForbidden(t *testing.T) {
 	w := httptest.NewRecorder()
 	hs.ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, http.StatusForbidden)
+	assert.Equal(t, http.StatusForbidden, w.Code)
 	assert.Contains(t, w.Body.String(), http.StatusText(http.StatusForbidden))
 }
 
@@ -80,5 +80,5 @@ func TestSafeHostSwitch(t *testing.T) {
 	w := httptest.NewRecorder()
 	hs.ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 997, "SafeHostSwitch invoked incorrect http.Handler")
+	assert.Equal(t, 997, w.Code, "SafeHostSwitch invoked incorrect http.Handler")
 }

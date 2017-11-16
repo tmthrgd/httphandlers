@@ -22,31 +22,37 @@ func TestSetHeader(t *testing.T) {
 	w := httptest.NewRecorder()
 	SetHeader(h, "X-Test", "test").ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{"X-Test": {"test"}})
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
+		"X-Test": {"test"},
+	}, w.HeaderMap)
 
 	w = httptest.NewRecorder()
 	SetHeader(h, "x-test", "test").ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{"X-Test": {"test"}})
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
+		"X-Test": {"test"},
+	}, w.HeaderMap)
 
 	w = httptest.NewRecorder()
 	h1 := SetHeader(h, "X-Test", "test1")
 	SetHeader(h1, "x-test", "test2").ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{"X-Test": {"test1"}})
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
+		"X-Test": {"test1"},
+	}, w.HeaderMap)
 
 	w = httptest.NewRecorder()
 	h1 = SetHeader(h, "X-Test1", "test1")
 	SetHeader(h1, "X-Test2", "test2").ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
 		"X-Test1": {"test1"},
 		"X-Test2": {"test2"},
-	})
+	}, w.HeaderMap)
 }
 
 func TestAddHeader(t *testing.T) {
@@ -58,31 +64,37 @@ func TestAddHeader(t *testing.T) {
 	w := httptest.NewRecorder()
 	AddHeader(h, "X-Test", "test").ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{"X-Test": {"test"}})
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
+		"X-Test": {"test"},
+	}, w.HeaderMap)
 
 	w = httptest.NewRecorder()
 	AddHeader(h, "x-test", "test").ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{"X-Test": {"test"}})
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
+		"X-Test": {"test"},
+	}, w.HeaderMap)
 
 	w = httptest.NewRecorder()
 	h1 := AddHeader(h, "X-Test", "test1")
 	AddHeader(h1, "x-test", "test2").ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{"X-Test": {"test2", "test1"}})
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
+		"X-Test": {"test2", "test1"},
+	}, w.HeaderMap)
 
 	w = httptest.NewRecorder()
 	h1 = AddHeader(h, "X-Test1", "test1")
 	AddHeader(h1, "X-Test2", "test2").ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
 		"X-Test1": {"test1"},
 		"X-Test2": {"test2"},
-	})
+	}, w.HeaderMap)
 }
 
 func TestDeleteHeader(t *testing.T) {
@@ -103,19 +115,23 @@ func TestDeleteHeader(t *testing.T) {
 	w := newRecorder()
 	DeleteHeader(h, "X-Test1").ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{"X-Test2": {"test1", "test2"}})
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
+		"X-Test2": {"test1", "test2"},
+	}, w.HeaderMap)
 
 	w = newRecorder()
 	DeleteHeader(h, "x-test1").ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{"X-Test2": {"test1", "test2"}})
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{
+		"X-Test2": {"test1", "test2"},
+	}, w.HeaderMap)
 
 	w = newRecorder()
 	h1 := DeleteHeader(h, "X-Test1")
 	DeleteHeader(h1, "x-test2").ServeHTTP(w, r)
 
-	assert.Equal(t, w.Code, 999, "http.Handler not invoked")
-	assert.Equal(t, w.HeaderMap, http.Header{})
+	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
+	assert.Equal(t, http.Header{}, w.HeaderMap)
 }
