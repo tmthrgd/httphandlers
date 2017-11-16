@@ -20,5 +20,5 @@ func ServeTemplate(name string, modtime time.Time, tmpl *template.Template, data
 		return nil, err
 	}
 
-	return &serveBytes{name, modtime, buf.Bytes()}, nil
+	return ServeBytes(name, modtime, buf.Bytes()), nil
 }
