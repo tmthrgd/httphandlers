@@ -25,7 +25,7 @@ func TestSetHeader(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Test": {"test"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 
 	w = httptest.NewRecorder()
 	SetHeader(h, "x-test", "test").ServeHTTP(w, r)
@@ -33,7 +33,7 @@ func TestSetHeader(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Test": {"test"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 
 	w = httptest.NewRecorder()
 	h1 := SetHeader(h, "X-Test", "test1")
@@ -42,7 +42,7 @@ func TestSetHeader(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Test": {"test1"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 
 	w = httptest.NewRecorder()
 	h1 = SetHeader(h, "X-Test1", "test1")
@@ -52,7 +52,7 @@ func TestSetHeader(t *testing.T) {
 	assert.Equal(t, http.Header{
 		"X-Test1": {"test1"},
 		"X-Test2": {"test2"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 }
 
 func TestAddHeader(t *testing.T) {
@@ -67,7 +67,7 @@ func TestAddHeader(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Test": {"test"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 
 	w = httptest.NewRecorder()
 	AddHeader(h, "x-test", "test").ServeHTTP(w, r)
@@ -75,7 +75,7 @@ func TestAddHeader(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Test": {"test"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 
 	w = httptest.NewRecorder()
 	h1 := AddHeader(h, "X-Test", "test1")
@@ -84,7 +84,7 @@ func TestAddHeader(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Test": {"test2", "test1"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 
 	w = httptest.NewRecorder()
 	h1 = AddHeader(h, "X-Test1", "test1")
@@ -94,7 +94,7 @@ func TestAddHeader(t *testing.T) {
 	assert.Equal(t, http.Header{
 		"X-Test1": {"test1"},
 		"X-Test2": {"test2"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 }
 
 func TestDeleteHeader(t *testing.T) {
@@ -118,7 +118,7 @@ func TestDeleteHeader(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Test2": {"test1", "test2"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 
 	w = newRecorder()
 	DeleteHeader(h, "x-test1").ServeHTTP(w, r)
@@ -126,12 +126,12 @@ func TestDeleteHeader(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Test2": {"test1", "test2"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 
 	w = newRecorder()
 	h1 := DeleteHeader(h, "X-Test1")
 	DeleteHeader(h1, "x-test2").ServeHTTP(w, r)
 
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
-	assert.Equal(t, http.Header{}, w.HeaderMap)
+	assert.Equal(t, http.Header{}, w.Result().Header)
 }

@@ -27,7 +27,7 @@ func TestSetHeaders(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Test": {"test"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 
 	w = httptest.NewRecorder()
 	SetHeaders(h, map[string]string{
@@ -37,7 +37,7 @@ func TestSetHeaders(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Test": {"test"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 
 	w = httptest.NewRecorder()
 	SetHeaders(h, map[string]string{
@@ -50,7 +50,7 @@ func TestSetHeaders(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Test": {"test1"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 
 	w = httptest.NewRecorder()
 	SetHeaders(h, map[string]string{
@@ -62,5 +62,5 @@ func TestSetHeaders(t *testing.T) {
 	assert.Equal(t, http.Header{
 		"X-Test1": {"test1"},
 		"X-Test2": {"test2"},
-	}, w.HeaderMap)
+	}, w.Result().Header)
 }

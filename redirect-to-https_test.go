@@ -20,13 +20,13 @@ func TestRedirectToHTTPS(t *testing.T) {
 	(&RedirectToHTTPS{}).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusMovedPermanently, w.Code)
-	assert.Equal(t, "https://example.com/path/to/file", w.HeaderMap.Get("Location"))
+	assert.Equal(t, "https://example.com/path/to/file", w.Result().Header.Get("Location"))
 
 	w = httptest.NewRecorder()
 	(&RedirectToHTTPS{Code: http.StatusSeeOther}).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusSeeOther, w.Code)
-	assert.Equal(t, "https://example.com/path/to/file", w.HeaderMap.Get("Location"))
+	assert.Equal(t, "https://example.com/path/to/file", w.Result().Header.Get("Location"))
 }
 
 func TestRedirectToHTTPSWithPort(t *testing.T) {
@@ -36,19 +36,19 @@ func TestRedirectToHTTPSWithPort(t *testing.T) {
 	(&RedirectToHTTPS{Port: "1234"}).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusMovedPermanently, w.Code)
-	assert.Equal(t, "https://example.com:1234/path/to/file", w.HeaderMap.Get("Location"))
+	assert.Equal(t, "https://example.com:1234/path/to/file", w.Result().Header.Get("Location"))
 
 	w = httptest.NewRecorder()
 	(&RedirectToHTTPS{Port: "443"}).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusMovedPermanently, w.Code)
-	assert.Equal(t, "https://example.com/path/to/file", w.HeaderMap.Get("Location"))
+	assert.Equal(t, "https://example.com/path/to/file", w.Result().Header.Get("Location"))
 
 	w = httptest.NewRecorder()
 	(&RedirectToHTTPS{Port: "https"}).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusMovedPermanently, w.Code)
-	assert.Equal(t, "https://example.com/path/to/file", w.HeaderMap.Get("Location"))
+	assert.Equal(t, "https://example.com/path/to/file", w.Result().Header.Get("Location"))
 }
 
 func TestRedirectToHTTPSNoHost(t *testing.T) {
@@ -65,5 +65,5 @@ func TestRedirectToHTTPSNoHost(t *testing.T) {
 	(&RedirectToHTTPS{Host: "example.org"}).ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusMovedPermanently, w.Code)
-	assert.Equal(t, "https://example.org/path/to/file", w.HeaderMap.Get("Location"))
+	assert.Equal(t, "https://example.org/path/to/file", w.Result().Header.Get("Location"))
 }
