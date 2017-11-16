@@ -22,3 +22,17 @@ func ServeTemplate(name string, modtime time.Time, tmpl *template.Template, data
 
 	return ServeBytes(name, modtime, buf.Bytes()), nil
 }
+
+// ServeErrorTemplate returns a http.Handler that serves
+// the executed template with a given HTTP status code.
+//
+// If mimeType is empty, it will be sniffed from
+// content.
+func ServeErrorTemplate(code int, tmpl *template.Template, data interface{}, mimeType string) (http.Handler, error) {
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		return nil, err
+	}
+
+	return ServeError(code, buf.Bytes(), mimeType), nil
+}
