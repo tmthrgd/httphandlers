@@ -40,8 +40,8 @@ func (hs *HostSwitch) Add(host string, h http.Handler) {
 func (hs *HostSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	host := (&url.URL{Host: r.Host}).Hostname()
 
-	if handler := hs.m[host]; handler != nil {
-		handler.ServeHTTP(w, r)
+	if h, ok := hs.m[host]; ok {
+		h.ServeHTTP(w, r)
 		return
 	}
 

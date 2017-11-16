@@ -45,8 +45,8 @@ func (hs *SafeHostSwitch) Remove(host string) {
 func (hs *SafeHostSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	host := (&url.URL{Host: r.Host}).Hostname()
 
-	if handler, ok := hs.m.Load(host); ok {
-		handler.(http.Handler).ServeHTTP(w, r)
+	if h, ok := hs.m.Load(host); ok {
+		h.(http.Handler).ServeHTTP(w, r)
 		return
 	}
 
