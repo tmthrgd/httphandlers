@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSNIMatch(t *testing.T) {
@@ -85,6 +86,6 @@ func TestSNIMatchMismatchNoHandler(t *testing.T) {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 	sni := SNIMatch(h, nil)
 
-	assert.IsType(t, (*errorHandler)(nil), sni.(*sniMatch).mismatch)
+	require.IsType(t, (*errorHandler)(nil), sni.(*sniMatch).mismatch)
 	assert.Equal(t, http.StatusBadRequest, sni.(*sniMatch).mismatch.(*errorHandler).code)
 }
