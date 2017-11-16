@@ -80,3 +80,11 @@ func TestSNIMatchMismatch(t *testing.T) {
 
 	assert.Equal(t, 998, w.Code, "SNIMatch invoked incorrect http.Handler")
 }
+
+func TestSNIMatchMismatchNoHandler(t *testing.T) {
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	sni := SNIMatch(h, nil)
+
+	assert.IsType(t, (*errorHandler)(nil), sni.(*sniMatch).mismatch)
+	assert.Equal(t, http.StatusBadRequest, sni.(*sniMatch).mismatch.(*errorHandler).code)
+}
