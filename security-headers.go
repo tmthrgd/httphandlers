@@ -20,7 +20,7 @@ import "net/http"
 // Strict-Transport-Security and Expect-CT to user
 // specified values.
 type SecurityHeaders struct {
-	http.Handler
+	Handler http.Handler
 
 	// The value of the Content-Security-Policy
 	// header to set.

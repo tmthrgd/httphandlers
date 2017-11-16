@@ -28,8 +28,7 @@ func StatusCodeSwitch(h http.Handler, handlers map[int]http.Handler) http.Handle
 }
 
 type statusCodeSwitch struct {
-	http.Handler
-
+	h        http.Handler
 	handlers map[int]http.Handler
 }
 
@@ -60,7 +59,7 @@ func (sw *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		rw = pusherStatusCodeResponseWriter{sc}
 	}
 
-	sw.Handler.ServeHTTP(rw, r)
+	sw.h.ServeHTTP(rw, r)
 }
 
 type statusCodeResponseWriter struct {

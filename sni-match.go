@@ -31,15 +31,14 @@ func SNIMatch(h http.Handler, mismatch http.Handler) http.Handler {
 }
 
 type sniMatch struct {
-	http.Handler
-
+	h        http.Handler
 	mismatch http.Handler
 }
 
 func (sm *sniMatch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.TLS == nil || r.TLS.ServerName == "" || r.ProtoMajor == 2 ||
 		r.TLS.ServerName == (&url.URL{Host: r.Host}).Hostname() {
-		sm.Handler.ServeHTTP(w, r)
+		sm.h.ServeHTTP(w, r)
 	} else {
 		sm.mismatch.ServeHTTP(w, r)
 	}

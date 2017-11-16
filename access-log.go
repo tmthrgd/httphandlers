@@ -44,8 +44,7 @@ func AccessLog(h http.Handler, out io.Writer) http.Handler {
 }
 
 type accessLog struct {
-	http.Handler
-
+	h   http.Handler
 	out io.Writer
 }
 
@@ -108,7 +107,7 @@ func (al *accessLog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		rw = pusherLogResponseWriter{lw}
 	}
 
-	al.Handler.ServeHTTP(rw, r)
+	al.h.ServeHTTP(rw, r)
 
 	if lw.code == 0 {
 		lw.code = http.StatusOK

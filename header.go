@@ -10,64 +10,52 @@ import "net/http"
 // SetHeader sets a header to a given value in the
 // response.
 func SetHeader(h http.Handler, name, value string) http.Handler {
-	return &setHeader{
-		Handler: h,
-		name:    http.CanonicalHeaderKey(name),
-		value:   value,
-	}
+	return &setHeader{h, http.CanonicalHeaderKey(name), value}
 }
 
 type setHeader struct {
-	http.Handler
-
-	name, value string
+	h     http.Handler
+	name  string
+	value string
 }
 
 func (sh *setHeader) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header()[sh.name] = []string{sh.value}
 
-	sh.Handler.ServeHTTP(w, r)
+	sh.h.ServeHTTP(w, r)
 }
 
 // AddHeader adds a header with a given value to the
 // response.
 func AddHeader(h http.Handler, name, value string) http.Handler {
-	return &addHeader{
-		Handler: h,
-		name:    http.CanonicalHeaderKey(name),
-		value:   value,
-	}
+	return &addHeader{h, http.CanonicalHeaderKey(name), value}
 }
 
 type addHeader struct {
-	http.Handler
-
-	name, value string
+	h     http.Handler
+	name  string
+	value string
 }
 
 func (ah *addHeader) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h := w.Header()
 	h[ah.name] = append(h[ah.name], ah.value)
 
-	ah.Handler.ServeHTTP(w, r)
+	ah.h.ServeHTTP(w, r)
 }
 
 // DeleteHeader removes a header from the response.
 func DeleteHeader(h http.Handler, name string) http.Handler {
-	return &deleteHeader{
-		Handler: h,
-		name:    http.CanonicalHeaderKey(name),
-	}
+	return &deleteHeader{h, http.CanonicalHeaderKey(name)}
 }
 
 type deleteHeader struct {
-	http.Handler
-
+	h    http.Handler
 	name string
 }
 
 func (dh *deleteHeader) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	delete(w.Header(), dh.name)
 
-	dh.Handler.ServeHTTP(w, r)
+	dh.h.ServeHTTP(w, r)
 }

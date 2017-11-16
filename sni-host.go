@@ -15,7 +15,7 @@ func SNIHost(h http.Handler) http.Handler {
 }
 
 type sniHost struct {
-	http.Handler
+	h http.Handler
 }
 
 func (sh *sniHost) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -25,5 +25,5 @@ func (sh *sniHost) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		r = &rr
 	}
 
-	sh.Handler.ServeHTTP(w, r)
+	sh.h.ServeHTTP(w, r)
 }

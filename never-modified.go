@@ -24,7 +24,7 @@ func NeverModified(h http.Handler) http.Handler {
 }
 
 type neverModified struct {
-	http.Handler
+	h http.Handler
 }
 
 func (nm *neverModified) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -36,5 +36,5 @@ func (nm *neverModified) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	nm.Handler.ServeHTTP(w, r)
+	nm.h.ServeHTTP(w, r)
 }

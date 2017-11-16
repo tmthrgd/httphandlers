@@ -28,15 +28,11 @@ func InternalRedirect(h http.Handler, url string) http.Handler {
 		panic("handlers: fragment must be empty in InternalRedirect")
 	}
 
-	return &internalRedirect{
-		Handler: h,
-		url:     u,
-	}
+	return &internalRedirect{h, u}
 }
 
 type internalRedirect struct {
-	http.Handler
-
+	h   http.Handler
 	url *url.URL
 }
 
@@ -48,5 +44,5 @@ func (ir *internalRedirect) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	*url = *ir.url
 	req.URL = url
 
-	ir.Handler.ServeHTTP(w, req)
+	ir.h.ServeHTTP(w, req)
 }

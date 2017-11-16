@@ -25,16 +25,11 @@ func SetHeaders(h http.Handler, headers map[string]string) http.Handler {
 		}
 	}
 
-	return &setHeaders{
-		Handler: h,
-
-		headers: canonical,
-	}
+	return &setHeaders{h, canonical}
 }
 
 type setHeaders struct {
-	http.Handler
-
+	h       http.Handler
 	headers map[string]string
 }
 
@@ -45,5 +40,5 @@ func (sh *setHeaders) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		hdr[k] = []string{v}
 	}
 
-	sh.Handler.ServeHTTP(w, r)
+	sh.h.ServeHTTP(w, r)
 }
