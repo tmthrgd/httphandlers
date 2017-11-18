@@ -84,8 +84,10 @@ func TestSNIMatchMismatch(t *testing.T) {
 
 func TestSNIMatchMismatchNoHandler(t *testing.T) {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+
 	sni := SNIMatch(h, nil)
 
+	require.IsType(t, (*sniMatch)(nil), sni)
 	require.IsType(t, (*errorHandler)(nil), sni.(*sniMatch).mismatch)
 	assert.Equal(t, http.StatusBadRequest, sni.(*sniMatch).mismatch.(*errorHandler).code)
 }
