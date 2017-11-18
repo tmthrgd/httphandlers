@@ -7,14 +7,21 @@ package handlers
 
 import (
 	"bytes"
-	"html/template"
+	"io"
 	"net/http"
 	"time"
 )
 
+// Template is an interface that represents both
+// text/template and html/template for use with
+// ServeTemplate and ServeErrorTemplate.
+type Template interface {
+	Execute(wr io.Writer, data interface{}) error
+}
+
 // ServeTemplate returns a http.Handler that calls
 // http.ServeContent with the executed template.
-func ServeTemplate(name string, modtime time.Time, tmpl *template.Template, data interface{}) (http.Handler, error) {
+func ServeTemplate(name string, modtime time.Time, tmpl Template, data interface{}) (http.Handler, error) {
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, data); err != nil {
 		return nil, err
@@ -28,7 +35,7 @@ func ServeTemplate(name string, modtime time.Time, tmpl *template.Template, data
 //
 // If mimeType is empty, it will be sniffed from
 // content.
-func ServeErrorTemplate(code int, tmpl *template.Template, data interface{}, mimeType string) (http.Handler, error) {
+func ServeErrorTemplate(code int, tmpl Template, data interface{}, mimeType string) (http.Handler, error) {
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, data); err != nil {
 		return nil, err
