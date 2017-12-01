@@ -202,6 +202,7 @@ var tlsVersionToLogName = map[uint16]string{
 	tls.VersionTLS12: " TLS1.2 ",
 	0x0304:           " TLS1.3 ",
 	0x7f00 | 18:      " TLS1.3-d18 ",
+	0x7f00 | 22:      " TLS1.3-d22 ",
 }
 
 type (
