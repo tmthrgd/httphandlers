@@ -45,7 +45,7 @@ func TestInternalRedirectInvalidPanics(t *testing.T) {
 		InternalRedirect(h, ":")
 	})
 
-	assert.Panics(t, func() {
+	assert.PanicsWithValue(t, "handlers: fragment must be empty in InternalRedirect", func() {
 		InternalRedirect(h, "/?abc#def")
 	})
 }
