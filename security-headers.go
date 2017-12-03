@@ -92,21 +92,21 @@ type SecurityHeaders struct {
 // ServeHTTP implements http.Handler.
 func (sh *SecurityHeaders) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h := w.Header()
-	h["X-Frame-Options"] = []string{"SAMEORIGIN"}
-	h["X-XSS-Protection"] = []string{"1; mode=block"}
-	h["X-Content-Type-Options"] = []string{"nosniff"}
-	h["Referrer-Policy"] = []string{"strict-origin-when-cross-origin"}
+	h.Set("X-Frame-Options", "SAMEORIGIN")
+	h.Set("X-Xss-Protection", "1; mode=block")
+	h.Set("X-Content-Type-Options", "nosniff")
+	h.Set("Referrer-Policy", "strict-origin-when-cross-origin")
 
 	if sh.ContentSecurityPolicy != "" {
-		h["Content-Security-Policy"] = []string{sh.ContentSecurityPolicy}
+		h.Set("Content-Security-Policy", sh.ContentSecurityPolicy)
 	}
 
 	if sh.StrictTransportSecurity != "" {
-		h["Strict-Transport-Security"] = []string{sh.StrictTransportSecurity}
+		h.Set("Strict-Transport-Security", sh.StrictTransportSecurity)
 	}
 
 	if sh.ExpectCT != "" {
-		h["Expect-CT"] = []string{sh.ExpectCT}
+		h.Set("Expect-Ct", sh.ExpectCT)
 	}
 
 	sh.Handler.ServeHTTP(w, r)
