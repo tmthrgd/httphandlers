@@ -25,7 +25,7 @@ func TestSecurityHeaders(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Frame-Options":        {"SAMEORIGIN"},
-		"X-XSS-Protection":       {"1; mode=block"},
+		"X-Xss-Protection":       {"1; mode=block"},
 		"X-Content-Type-Options": {"nosniff"},
 		"Referrer-Policy":        {"strict-origin-when-cross-origin"},
 	}, w.Result().Header)
@@ -42,23 +42,23 @@ func TestSecurityHeaders(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Frame-Options":           {"SAMEORIGIN"},
-		"X-XSS-Protection":          {"1; mode=block"},
+		"X-Xss-Protection":          {"1; mode=block"},
 		"X-Content-Type-Options":    {"nosniff"},
 		"Referrer-Policy":           {"strict-origin-when-cross-origin"},
 		"Content-Security-Policy":   {"test1"},
 		"Strict-Transport-Security": {"test2"},
-		"Expect-CT":                 {"test3"},
+		"Expect-Ct":                 {"test3"},
 	}, w.Result().Header)
 
 	w = httptest.NewRecorder()
 	w.HeaderMap = http.Header{
 		"X-Frame-Options":           {"fail"},
-		"X-XSS-Protection":          {"fail"},
+		"X-Xss-Protection":          {"fail"},
 		"X-Content-Type-Options":    {"fail"},
 		"Referrer-Policy":           {"fail"},
 		"Content-Security-Policy":   {"fail"},
 		"Strict-Transport-Security": {"fail"},
-		"Expect-CT":                 {"fail"},
+		"Expect-Ct":                 {"fail"},
 	}
 
 	(&SecurityHeaders{
@@ -72,23 +72,23 @@ func TestSecurityHeaders(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Frame-Options":           {"SAMEORIGIN"},
-		"X-XSS-Protection":          {"1; mode=block"},
+		"X-Xss-Protection":          {"1; mode=block"},
 		"X-Content-Type-Options":    {"nosniff"},
 		"Referrer-Policy":           {"strict-origin-when-cross-origin"},
 		"Content-Security-Policy":   {"test1"},
 		"Strict-Transport-Security": {"test2"},
-		"Expect-CT":                 {"test3"},
+		"Expect-Ct":                 {"test3"},
 	}, w.Result().Header)
 
 	w = httptest.NewRecorder()
 	w.HeaderMap = http.Header{
 		"X-Frame-Options":           {"fail"},
-		"X-XSS-Protection":          {"fail"},
+		"X-Xss-Protection":          {"fail"},
 		"X-Content-Type-Options":    {"fail"},
 		"Referrer-Policy":           {"fail"},
 		"Content-Security-Policy":   {"leave"},
 		"Strict-Transport-Security": {"leave"},
-		"Expect-CT":                 {"leave"},
+		"Expect-Ct":                 {"leave"},
 	}
 
 	(&SecurityHeaders{Handler: h}).ServeHTTP(w, r)
@@ -96,11 +96,11 @@ func TestSecurityHeaders(t *testing.T) {
 	assert.Equal(t, 999, w.Code, "http.Handler not invoked")
 	assert.Equal(t, http.Header{
 		"X-Frame-Options":           {"SAMEORIGIN"},
-		"X-XSS-Protection":          {"1; mode=block"},
+		"X-Xss-Protection":          {"1; mode=block"},
 		"X-Content-Type-Options":    {"nosniff"},
 		"Referrer-Policy":           {"strict-origin-when-cross-origin"},
 		"Content-Security-Policy":   {"leave"},
 		"Strict-Transport-Security": {"leave"},
-		"Expect-CT":                 {"leave"},
+		"Expect-Ct":                 {"leave"},
 	}, w.Result().Header)
 }
