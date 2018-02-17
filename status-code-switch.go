@@ -76,6 +76,7 @@ func (sw *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sw.h.ServeHTTP(rw, r)
+	sc.writeHeaders()
 }
 
 type statusCodeResponseWriter struct {
@@ -84,36 +85,52 @@ type statusCodeResponseWriter struct {
 
 	handlers map[int]http.Handler
 
+	headers http.Header
+
 	didWrite  bool
 	skipWrite bool
 }
 
 func (w *statusCodeResponseWriter) Header() http.Header {
-	return w.rw.Header()
+	if w.didWrite && !w.skipWrite {
+		return w.rw.Header()
+	}
+
+	if w.headers == nil {
+		w.headers = cloneHeader(w.rw.Header())
+	}
+
+	return w.headers
+}
+
+func (w *statusCodeResponseWriter) writeHeaders() {
+	if w.headers == nil || w.skipWrite {
+		return
+	}
+
+	hdr := w.rw.Header()
+	for k := range hdr {
+		delete(hdr, k)
+	}
+	for k, vv := range w.headers {
+		hdr[k] = vv
+	}
 }
 
 func (w *statusCodeResponseWriter) WriteHeader(code int) {
-	if w.skipWrite {
+	if w.skipWrite || w.didWrite {
 		return
 	}
 
-	handler, ok := w.handlers[code]
-	if !ok || w.didWrite {
-		w.rw.WriteHeader(code)
+	if h, ok := w.handlers[code]; ok {
+		w.skipWrite = true
+		h.ServeHTTP(w.rw, w.req)
 		return
 	}
 
-	w.skipWrite = true
-
-	h := w.rw.Header()
-	delete(h, "Cache-Control")
-	delete(h, "Etag")
-	delete(h, "Last-Modified")
-	delete(h, "Content-Encoding")
-	delete(h, "Content-Length")
-	delete(h, "Content-Type")
-
-	handler.ServeHTTP(w.rw, w.req)
+	w.didWrite = true
+	w.writeHeaders()
+	w.rw.WriteHeader(code)
 }
 
 func (w *statusCodeResponseWriter) Write(p []byte) (int, error) {
