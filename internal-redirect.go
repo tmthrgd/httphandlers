@@ -31,6 +31,14 @@ func InternalRedirect(h http.Handler, url string) http.Handler {
 	return &internalRedirect{h, u}
 }
 
+// InternalRedirectWrap returns a Middleware that calls
+// InternalRedirect.
+func InternalRedirectWrap(url string) Middleware {
+	return func(h http.Handler) http.Handler {
+		return InternalRedirect(h, url)
+	}
+}
+
 type internalRedirect struct {
 	h   http.Handler
 	url *url.URL

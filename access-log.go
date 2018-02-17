@@ -43,6 +43,13 @@ func AccessLog(h http.Handler, out io.Writer) http.Handler {
 	return &accessLog{h, out}
 }
 
+// AccessLogWrap returns a Middleware that calls AccessLog.
+func AccessLogWrap(out io.Writer) Middleware {
+	return func(h http.Handler) http.Handler {
+		return AccessLog(h, out)
+	}
+}
+
 type accessLog struct {
 	h   http.Handler
 	out io.Writer

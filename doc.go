@@ -6,3 +6,9 @@
 // Package handlers is a collection of small utility
 // http.Handler's for Golang.
 package handlers
+
+import "net/http"
+
+// Middleware represents a function that wraps an
+// http.Handler.
+type Middleware = func(http.Handler) http.Handler

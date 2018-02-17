@@ -28,6 +28,14 @@ func SetHeaders(h http.Handler, headers map[string]string) http.Handler {
 	return &setHeaders{h, canonical}
 }
 
+// SetHeadersWrap returns a Middleware that calls
+// SetHeaders.
+func SetHeadersWrap(headers map[string]string) Middleware {
+	return func(h http.Handler) http.Handler {
+		return SetHeaders(h, headers)
+	}
+}
+
 type setHeaders struct {
 	h       http.Handler
 	headers map[string]string

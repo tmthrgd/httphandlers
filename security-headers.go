@@ -89,6 +89,21 @@ type SecurityHeaders struct {
 	ExpectCT string
 }
 
+// SecurityHeadersWrap returns a Middleware that produces a
+// *SecurityHeaders handler.
+func SecurityHeadersWrap(c *SecurityHeaders) Middleware {
+	return func(h http.Handler) http.Handler {
+		sh := new(SecurityHeaders)
+
+		if c != nil {
+			*sh = *c
+		}
+
+		sh.Handler = h
+		return sh
+	}
+}
+
 // ServeHTTP implements http.Handler.
 func (sh *SecurityHeaders) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h := w.Header()

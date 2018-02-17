@@ -30,6 +30,13 @@ func SNIMatch(h http.Handler, mismatch http.Handler) http.Handler {
 	return &sniMatch{h, mismatch}
 }
 
+// SNIMatchWrap returns a Middleware that calls SNIMatch.
+func SNIMatchWrap(mismatch http.Handler) Middleware {
+	return func(h http.Handler) http.Handler {
+		return SNIMatch(h, mismatch)
+	}
+}
+
 type sniMatch struct {
 	h        http.Handler
 	mismatch http.Handler

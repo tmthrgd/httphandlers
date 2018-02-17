@@ -27,6 +27,14 @@ func StatusCodeSwitch(h http.Handler, handlers map[int]http.Handler) http.Handle
 	return &statusCodeSwitch{h, handlers}
 }
 
+// StatusCodeSwitchWrap returns a Middleware that calls
+// StatusCodeSwitch.
+func StatusCodeSwitchWrap(handlers map[int]http.Handler) Middleware {
+	return func(h http.Handler) http.Handler {
+		return StatusCodeSwitch(h, handlers)
+	}
+}
+
 type statusCodeSwitch struct {
 	h        http.Handler
 	handlers map[int]http.Handler
