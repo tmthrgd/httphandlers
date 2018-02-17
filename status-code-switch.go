@@ -12,6 +12,14 @@ import (
 	"net/http"
 )
 
+type statusCodeSwitchedError struct{}
+
+func (statusCodeSwitchedError) Error() string {
+	return "handlers: response switched to other http.Handler"
+}
+
+func (statusCodeSwitchedError) StatusCodeSwitched() {}
+
 // StatusCodeSwitch intercepts calls to
 // http.ResponseWriter.WriteHeader and redirects
 // the request to a http.Handler based on the
@@ -106,7 +114,7 @@ func (w *statusCodeResponseWriter) WriteHeader(code int) {
 
 func (w *statusCodeResponseWriter) Write(p []byte) (int, error) {
 	if w.skipWrite {
-		return len(p), nil
+		return 0, statusCodeSwitchedError{}
 	}
 
 	w.didWrite = true
@@ -115,7 +123,7 @@ func (w *statusCodeResponseWriter) Write(p []byte) (int, error) {
 
 func (w *statusCodeResponseWriter) WriteString(s string) (int, error) {
 	if w.skipWrite {
-		return len(s), nil
+		return 0, statusCodeSwitchedError{}
 	}
 
 	w.didWrite = true
