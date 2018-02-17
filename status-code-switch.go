@@ -50,8 +50,8 @@ type statusCodeSwitch struct {
 
 func (sw *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	sc := &statusCodeResponseWriter{
-		ResponseWriter: w,
-		req:            r,
+		rw:  w,
+		req: r,
 
 		handlers: sw.handlers,
 	}
@@ -79,13 +79,17 @@ func (sw *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type statusCodeResponseWriter struct {
-	http.ResponseWriter
+	rw  http.ResponseWriter
 	req *http.Request
 
 	handlers map[int]http.Handler
 
 	didWrite  bool
 	skipWrite bool
+}
+
+func (w *statusCodeResponseWriter) Header() http.Header {
+	return w.rw.Header()
 }
 
 func (w *statusCodeResponseWriter) WriteHeader(code int) {
@@ -95,13 +99,13 @@ func (w *statusCodeResponseWriter) WriteHeader(code int) {
 
 	handler, ok := w.handlers[code]
 	if !ok || w.didWrite {
-		w.ResponseWriter.WriteHeader(code)
+		w.rw.WriteHeader(code)
 		return
 	}
 
 	w.skipWrite = true
 
-	h := w.Header()
+	h := w.rw.Header()
 	delete(h, "Cache-Control")
 	delete(h, "Etag")
 	delete(h, "Last-Modified")
@@ -109,7 +113,7 @@ func (w *statusCodeResponseWriter) WriteHeader(code int) {
 	delete(h, "Content-Length")
 	delete(h, "Content-Type")
 
-	handler.ServeHTTP(w.ResponseWriter, w.req)
+	handler.ServeHTTP(w.rw, w.req)
 }
 
 func (w *statusCodeResponseWriter) Write(p []byte) (int, error) {
@@ -118,7 +122,7 @@ func (w *statusCodeResponseWriter) Write(p []byte) (int, error) {
 	}
 
 	w.didWrite = true
-	return w.ResponseWriter.Write(p)
+	return w.rw.Write(p)
 }
 
 func (w *statusCodeResponseWriter) WriteString(s string) (int, error) {
@@ -127,7 +131,7 @@ func (w *statusCodeResponseWriter) WriteString(s string) (int, error) {
 	}
 
 	w.didWrite = true
-	return io.WriteString(w.ResponseWriter, s)
+	return io.WriteString(w.rw, s)
 }
 
 func (w *statusCodeResponseWriter) Flush() {
@@ -135,7 +139,7 @@ func (w *statusCodeResponseWriter) Flush() {
 		return
 	}
 
-	if f, ok := w.ResponseWriter.(http.Flusher); ok {
+	if f, ok := w.rw.(http.Flusher); ok {
 		f.Flush()
 	}
 }
@@ -161,15 +165,15 @@ var (
 )
 
 func (w closeNotifyStatusCodeResponseWriter) CloseNotify() <-chan bool {
-	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
+	return w.rw.(http.CloseNotifier).CloseNotify()
 }
 
 func (w closeNotifyHijackStatusCodeResponseWriter) CloseNotify() <-chan bool {
-	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
+	return w.rw.(http.CloseNotifier).CloseNotify()
 }
 
 func (w closeNotifyPusherStatusCodeResponseWriter) CloseNotify() <-chan bool {
-	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
+	return w.rw.(http.CloseNotifier).CloseNotify()
 }
 
 func (w hijackStatusCodeResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
@@ -177,7 +181,7 @@ func (w hijackStatusCodeResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, e
 		return nil, nil, http.ErrNotSupported
 	}
 
-	return w.ResponseWriter.(http.Hijacker).Hijack()
+	return w.rw.(http.Hijacker).Hijack()
 }
 
 func (w closeNotifyHijackStatusCodeResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
@@ -185,7 +189,7 @@ func (w closeNotifyHijackStatusCodeResponseWriter) Hijack() (net.Conn, *bufio.Re
 		return nil, nil, http.ErrNotSupported
 	}
 
-	return w.ResponseWriter.(http.Hijacker).Hijack()
+	return w.rw.(http.Hijacker).Hijack()
 }
 
 func (w pusherStatusCodeResponseWriter) Push(target string, opts *http.PushOptions) error {
@@ -193,7 +197,7 @@ func (w pusherStatusCodeResponseWriter) Push(target string, opts *http.PushOptio
 		return http.ErrNotSupported
 	}
 
-	return w.ResponseWriter.(http.Pusher).Push(target, opts)
+	return w.rw.(http.Pusher).Push(target, opts)
 }
 
 func (w closeNotifyPusherStatusCodeResponseWriter) Push(target string, opts *http.PushOptions) error {
@@ -201,5 +205,5 @@ func (w closeNotifyPusherStatusCodeResponseWriter) Push(target string, opts *htt
 		return http.ErrNotSupported
 	}
 
-	return w.ResponseWriter.(http.Pusher).Push(target, opts)
+	return w.rw.(http.Pusher).Push(target, opts)
 }
