@@ -10,7 +10,7 @@ import "net/http"
 // SNIHost sets (*http.Request).Host to the TLS
 // SNI extension value if the request is TLS and
 // the HTTP Host header was absent.
-func SNIHost(h http.Handler) http.Handler {
+func SNIHost(h http.Handler) Handler {
 	return &sniHost{h}
 }
 

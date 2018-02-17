@@ -9,14 +9,14 @@ import "net/http"
 
 // ErrorMessage calls http.Error with the given
 // HTTP status code and message.
-func ErrorMessage(msg string, code int) http.Handler {
+func ErrorMessage(msg string, code int) Handler {
 	return &errorHandler{msg, code}
 }
 
 // ErrorCode calls http.Error with the given
 // HTTP status code. It uses http.StatusText
 // for the message.
-func ErrorCode(code int) http.Handler {
+func ErrorCode(code int) Handler {
 	return &errorHandler{
 		http.StatusText(code),
 		code,

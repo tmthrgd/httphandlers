@@ -9,7 +9,7 @@ import "net/http"
 
 // SetHeader sets a header to a given value in the
 // response.
-func SetHeader(h http.Handler, name, value string) http.Handler {
+func SetHeader(h http.Handler, name, value string) Handler {
 	return &setHeader{h, http.CanonicalHeaderKey(name), value}
 }
 
@@ -34,7 +34,7 @@ func (sh *setHeader) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // AddHeader adds a header with a given value to the
 // response.
-func AddHeader(h http.Handler, name, value string) http.Handler {
+func AddHeader(h http.Handler, name, value string) Handler {
 	return &addHeader{h, http.CanonicalHeaderKey(name), value}
 }
 
@@ -59,7 +59,7 @@ func (ah *addHeader) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteHeader removes a header from the response.
-func DeleteHeader(h http.Handler, name string) http.Handler {
+func DeleteHeader(h http.Handler, name string) Handler {
 	return &deleteHeader{h, http.CanonicalHeaderKey(name)}
 }
 

@@ -14,7 +14,7 @@ import (
 
 // ServeBytes returns a http.Handler that calls
 // http.ServeContent with a bytes.Reader.
-func ServeBytes(name string, modtime time.Time, content []byte) http.Handler {
+func ServeBytes(name string, modtime time.Time, content []byte) Handler {
 	return &serveBytes{name, modtime, content}
 }
 
@@ -30,7 +30,7 @@ func (s *serveBytes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // ServeString returns a http.Handler that calls
 // http.ServeContent with a strings.Reader.
-func ServeString(name string, modtime time.Time, content string) http.Handler {
+func ServeString(name string, modtime time.Time, content string) Handler {
 	return &serveString{name, modtime, content}
 }
 

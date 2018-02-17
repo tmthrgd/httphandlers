@@ -15,7 +15,7 @@ import (
 //
 // If mimeType is empty, it will be sniffed from
 // content.
-func ServeError(code int, content []byte, mimeType string) http.Handler {
+func ServeError(code int, content []byte, mimeType string) Handler {
 	if mimeType == "" {
 		mimeType = http.DetectContentType(content)
 	}

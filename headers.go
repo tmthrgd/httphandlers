@@ -8,7 +8,7 @@ package handlers
 import "net/http"
 
 // SetHeaders sets multiple response headers.
-func SetHeaders(h http.Handler, headers map[string]string) http.Handler {
+func SetHeaders(h http.Handler, headers map[string]string) Handler {
 	canonical := make(map[string]string, len(headers))
 
 	for k, v := range headers {

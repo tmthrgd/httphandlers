@@ -22,7 +22,7 @@ import (
 //
 // If Mismatch is nil, a 400 Bad Request error
 // will be returned instead.
-func SNIMatch(h http.Handler, mismatch http.Handler) http.Handler {
+func SNIMatch(h http.Handler, mismatch http.Handler) Handler {
 	if mismatch == nil {
 		mismatch = ErrorCode(http.StatusBadRequest)
 	}

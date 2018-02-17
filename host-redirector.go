@@ -18,7 +18,7 @@ import (
 //
 // The provided code should be in the 3xx range
 // and is usually http.StatusMovedPermanently.
-func HostRedirect(host string, code int) http.Handler {
+func HostRedirect(host string, code int) Handler {
 	return &hostRedirector{host, code}
 }
 

@@ -35,7 +35,7 @@ const sentinelH2Push = "X-H2-Push"
 //
 // The log format is intended for human
 // debugging and may not be stable.
-func AccessLog(h http.Handler, out io.Writer) http.Handler {
+func AccessLog(h http.Handler, out io.Writer) Handler {
 	if out == nil {
 		out = os.Stderr
 	}

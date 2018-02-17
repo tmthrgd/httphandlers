@@ -8,7 +8,6 @@ package handlers
 import (
 	"bytes"
 	"io"
-	"net/http"
 	"time"
 )
 
@@ -21,7 +20,7 @@ type Template interface {
 
 // ServeTemplate returns a http.Handler that calls
 // http.ServeContent with the executed template.
-func ServeTemplate(name string, modtime time.Time, tmpl Template, data interface{}) (http.Handler, error) {
+func ServeTemplate(name string, modtime time.Time, tmpl Template, data interface{}) (Handler, error) {
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, data); err != nil {
 		return nil, err
@@ -35,7 +34,7 @@ func ServeTemplate(name string, modtime time.Time, tmpl Template, data interface
 //
 // If mimeType is empty, it will be sniffed from
 // content.
-func ServeErrorTemplate(code int, tmpl Template, data interface{}, mimeType string) (http.Handler, error) {
+func ServeErrorTemplate(code int, tmpl Template, data interface{}, mimeType string) (Handler, error) {
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, data); err != nil {
 		return nil, err

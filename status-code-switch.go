@@ -23,7 +23,7 @@ import (
 //
 // It can be used with ServeError to statically
 // render pretty error pages.
-func StatusCodeSwitch(h http.Handler, handlers map[int]http.Handler) http.Handler {
+func StatusCodeSwitch(h http.Handler, handlers map[int]http.Handler) Handler {
 	return &statusCodeSwitch{h, handlers}
 }
 

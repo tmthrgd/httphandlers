@@ -19,7 +19,7 @@ import "net/http"
 //  'This browser tweak saved 60% of requests to Facebook'
 //   https://code.facebook.com/posts/557147474482256/
 // for an overview of how this method works.
-func NeverModified(h http.Handler) http.Handler {
+func NeverModified(h http.Handler) Handler {
 	return &neverModified{h}
 }
 

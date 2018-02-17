@@ -18,7 +18,7 @@ var parseURL = url.Parse
 // InternalRedirect replaces the requests url with the
 // given string. It is like http.Redirect but is handled
 // internally.
-func InternalRedirect(h http.Handler, url string) http.Handler {
+func InternalRedirect(h http.Handler, url string) Handler {
 	u, err := parseURL(url)
 	if err != nil {
 		panic(err)
