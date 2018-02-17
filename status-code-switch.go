@@ -50,8 +50,7 @@ type statusCodeSwitch struct {
 
 func (sw *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	sc := &statusCodeResponseWriter{
-		rw:  w,
-		req: r,
+		rw: w,
 
 		handlers: sw.handlers,
 	}
@@ -77,11 +76,14 @@ func (sw *statusCodeSwitch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	sw.h.ServeHTTP(rw, r)
 	sc.writeHeaders()
+
+	if sc.skipWrite {
+		sw.handlers[int(sc.code)].ServeHTTP(w, r)
+	}
 }
 
 type statusCodeResponseWriter struct {
-	rw  http.ResponseWriter
-	req *http.Request
+	rw http.ResponseWriter
 
 	handlers map[int]http.Handler
 
@@ -89,6 +91,7 @@ type statusCodeResponseWriter struct {
 
 	didWrite  bool
 	skipWrite bool
+	code      int32
 }
 
 func (w *statusCodeResponseWriter) Header() http.Header {
@@ -122,9 +125,9 @@ func (w *statusCodeResponseWriter) WriteHeader(code int) {
 		return
 	}
 
-	if h, ok := w.handlers[code]; ok {
+	if _, ok := w.handlers[code]; ok && int(int32(code)) == code {
 		w.skipWrite = true
-		h.ServeHTTP(w.rw, w.req)
+		w.code = int32(code)
 		return
 	}
 
