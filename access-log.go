@@ -202,14 +202,16 @@ func (w hijackLogResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 
 var _ http.Hijacker = hijackLogResponseWriter{}
 
+// TODO: remove once TLS 1.3 support is in all supported
+// golang versions.
+const tls_VersionTLS13 = 0x0304
+
 var tlsVersionToLogName = map[uint16]string{
 	tls.VersionSSL30: " SSL3.0 ",
 	tls.VersionTLS10: " TLS1.0 ",
 	tls.VersionTLS11: " TLS1.1 ",
 	tls.VersionTLS12: " TLS1.2 ",
-	0x0304:           " TLS1.3 ",
-	0x7f00 | 18:      " TLS1.3-d18 ",
-	0x7f00 | 22:      " TLS1.3-d22 ",
+	tls_VersionTLS13: " TLS1.3 ",
 }
 
 type (
