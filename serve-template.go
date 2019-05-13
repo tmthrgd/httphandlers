@@ -42,3 +42,15 @@ func ServeErrorTemplate(code int, tmpl Template, data interface{}, mimeType stri
 
 	return ServeError(code, buf.Bytes(), mimeType), nil
 }
+
+// Must is a helper that wraps a call to a function returning (Handler, error)
+// and panics if the error is non-nil. It is intended for use in variable
+// initializations such as
+//	var h = handlers.Must(handlers.ServeTemplate("index.html", time.Now(), indexTmpl, indexData))
+func Must(h Handler, err error) Handler {
+	if err != nil {
+		panic(err)
+	}
+
+	return h
+}
