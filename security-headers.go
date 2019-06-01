@@ -87,6 +87,39 @@ type SecurityHeaders struct {
 	//   https://scotthelme.co.uk/a-new-security-header-expect-ct/
 	// for more information.
 	ExpectCT string
+
+	// The value of the Report-To header to set.
+	//
+	// It should be a json object containing a group,
+	// max_age, endpoints and include_subdomains fields.
+	//
+	// See the article
+	//  'Introducing the Reporting API, Network Error Logging and other major upgrades to Report URI'
+	//   https://scotthelme.co.uk/introducing-the-reporting-api-nel-other-major-changes-to-report-uri/
+	// for more information.
+	ReportTo string
+
+	// The value of the NEL header to set.
+	//
+	// It should be a json object containing a report_to,
+	// max_age and include_subdomains fields.
+	//
+	// See the article
+	//  'Network Error Logging: Deep Dive'
+	//   https://scotthelme.co.uk/network-error-logging-deep-dive/
+	// for more information.
+	NEL string
+
+	// The value of the Feature-Policy header to set.
+	//
+	// This header allows a site to control what browser
+	// features are allowed to be used.
+	//
+	// See the article
+	//  'A new security header: Feature Policy'
+	//   https://scotthelme.co.uk/a-new-security-header-feature-policy/
+	// for more information.
+	FeaturePolicy string
 }
 
 // SecurityHeadersWrap returns a Middleware that produces a
@@ -122,6 +155,18 @@ func (sh *SecurityHeaders) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if sh.ExpectCT != "" {
 		h.Set("Expect-Ct", sh.ExpectCT)
+	}
+
+	if sh.ReportTo != "" {
+		h.Set("Report-To", sh.ReportTo)
+	}
+
+	if sh.NEL != "" {
+		h.Set("Nel", sh.NEL)
+	}
+
+	if sh.FeaturePolicy != "" {
+		h.Set("Feature-Policy", sh.FeaturePolicy)
 	}
 
 	sh.Handler.ServeHTTP(w, r)
